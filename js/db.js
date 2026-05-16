@@ -129,10 +129,10 @@ const DB = (() => {
 
   // ─── AUTH DO PSICÓLOGO ──────────────────────────────────────────────────────
   const Auth = {
+    // Salva dados do perfil nos metadados do auth.
+    // INSERT na tabela therapists ocorre no primeiro getProfile(),
+    // quando já há sessão autenticada (após confirmação de e-mail).
     async signUp({ email, password, fullName, crp, clinicName }) {
-      // Salva os dados do perfil nos metadados do auth.
-      // O INSERT na tabela therapists só ocorre no primeiro login (getProfile),
-      // quando o usuário já tem sessão autenticada após confirmar o e-mail.
       const { data, error } = await client().auth.signUp({
         email,
         password,
@@ -167,17 +167,24 @@ const DB = (() => {
       const session = await Auth.getSession();
       if (!session) return null;
 
-      const { data: existing } = await client()
+      // Busca sem .single() para evitar exceção PGRST116 quando não existe
+      const { data: rows, error: fetchError } = await client()
         .from("therapists")
         .select("*")
         .eq("id", session.user.id)
-        .single();
+        .limit(1);
 
-      if (existing) return existing;
+      if (fetchError) throw fetchError;
+      if (rows && rows.length > 0) return rows[0];
 
-      // Perfil ainda não existe: primeiro login após confirmar e-mail.
-      // Cria agora, com sessão autenticada — a política RLS deixa passar.
-      const meta = session.user.user_metadata || {};
+      // Perfil não existe ainda — primeiro login após confirmar e-mail.
+      // user_metadata pode não estar disponível em todos os provedores,
+      // então buscamos a sessão mais fresca antes de ler os metadados.
+      const { data: refreshed } = await client().auth.refreshSession();
+      const meta = refreshed?.session?.user?.user_metadata
+        || session.user.user_metadata
+        || {};
+
       const { data: created, error: createError } = await client()
         .from("therapists")
         .insert({
