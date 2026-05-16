@@ -130,30 +130,21 @@ const DB = (() => {
   // ─── AUTH DO PSICÓLOGO ──────────────────────────────────────────────────────
   const Auth = {
     async signUp({ email, password, fullName, crp, clinicName }) {
+      // Salva os dados do perfil nos metadados do auth.
+      // O INSERT na tabela therapists só ocorre no primeiro login (getProfile),
+      // quando o usuário já tem sessão autenticada após confirmar o e-mail.
       const { data, error } = await client().auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } },
+        options: {
+          data: {
+            full_name:   fullName,
+            crp:         crp || null,
+            clinic_name: clinicName || null,
+          },
+        },
       });
       if (error) throw error;
-
-      // Cria perfil na tabela therapists
-      const { error: profileError } = await client()
-        .from("therapists")
-        .insert({
-          id:          data.user.id,
-          full_name:   fullName,
-          crp:         crp || null,
-          email,
-          clinic_name: clinicName || null,
-          settings: {
-            cycle_days:   10,
-            report_email: email,
-            primary_color: "#6b7c4a",
-          },
-        });
-
-      if (profileError) throw profileError;
       return data;
     },
 
@@ -175,12 +166,37 @@ const DB = (() => {
     async getProfile() {
       const session = await Auth.getSession();
       if (!session) return null;
-      const { data } = await client()
+
+      const { data: existing } = await client()
         .from("therapists")
         .select("*")
         .eq("id", session.user.id)
         .single();
-      return data;
+
+      if (existing) return existing;
+
+      // Perfil ainda não existe: primeiro login após confirmar e-mail.
+      // Cria agora, com sessão autenticada — a política RLS deixa passar.
+      const meta = session.user.user_metadata || {};
+      const { data: created, error: createError } = await client()
+        .from("therapists")
+        .insert({
+          id:          session.user.id,
+          full_name:   meta.full_name   || session.user.email,
+          crp:         meta.crp         || null,
+          email:       session.user.email,
+          clinic_name: meta.clinic_name || null,
+          settings: {
+            cycle_days:    10,
+            report_email:  session.user.email,
+            primary_color: "#6b7c4a",
+          },
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+      return created;
     },
 
     onAuthChange(cb) {
