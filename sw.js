@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rdp-pro-v1.0';
+const CACHE_NAME = 'rdp-pro-v1.2';
 
 const ASSETS = [
   './',

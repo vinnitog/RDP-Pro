@@ -5,6 +5,7 @@ const Therapist = (() => {
 
   async function init() {
     const session = await DB.Auth.getSession();
+    setHeaderVisible(!!session);
     if (!session) {
       showView("view-auth");
       return;
@@ -13,14 +14,27 @@ const Therapist = (() => {
   }
 
   DB.Auth.onAuthChange(async (event) => {
-    if (event === "SIGNED_IN") await loadDashboard();
-    if (event === "SIGNED_OUT") showView("view-auth");
+    if (event === "SIGNED_IN") {
+      setHeaderVisible(true);
+      await loadDashboard();
+    }
+    if (event === "SIGNED_OUT") {
+      profile = null;
+      setHeaderVisible(false);
+      showView("view-auth");
+    }
   });
 
   // ─── VIEWS ───────────────────────────────────────────────────────────────
   function showView(id) {
     document.querySelectorAll(".t-view").forEach((v) => v.classList.remove("active"));
     document.getElementById(id)?.classList.add("active");
+  }
+
+  // Esconde o header quando não há sessão para impedir acesso a views protegidas
+  function setHeaderVisible(visible) {
+    const header = document.querySelector(".t-header");
+    if (header) header.style.display = visible ? "" : "none";
   }
 
   // ─── AUTH ─────────────────────────────────────────────────────────────────
@@ -30,22 +44,32 @@ const Therapist = (() => {
     if (!email || !password) { showError("auth-error", "Preencha e-mail e senha"); return; }
 
     setLoading("btn-signin", true);
+    clearError("auth-error");
     try {
       await DB.Auth.signIn({ email, password });
+      // loadDashboard é chamado pelo onAuthChange SIGNED_IN
+      // mas chamamos diretamente também para garantir em caso de evento já disparado
       await loadDashboard();
     } catch (e) {
-      showError("auth-error", "E-mail ou senha incorretos");
+      const msg = e.message?.toLowerCase() || "";
+      if (msg.includes("invalid") || msg.includes("credentials") || msg.includes("password")) {
+        showError("auth-error", "E-mail ou senha incorretos");
+      } else if (msg.includes("confirm") || msg.includes("verified")) {
+        showError("auth-error", "Confirme seu e-mail antes de entrar");
+      } else {
+        showError("auth-error", e.message || "Erro ao entrar");
+      }
     } finally {
       setLoading("btn-signin", false);
     }
   }
 
   async function signUp() {
-    const email     = document.getElementById("signup-email")?.value.trim();
-    const password  = document.getElementById("signup-password")?.value;
-    const fullName  = document.getElementById("signup-name")?.value.trim();
-    const crp       = document.getElementById("signup-crp")?.value.trim();
-    const clinicName= document.getElementById("signup-clinic")?.value.trim();
+    const email      = document.getElementById("signup-email")?.value.trim();
+    const password   = document.getElementById("signup-password")?.value;
+    const fullName   = document.getElementById("signup-name")?.value.trim();
+    const crp        = document.getElementById("signup-crp")?.value.trim();
+    const clinicName = document.getElementById("signup-clinic")?.value.trim();
 
     if (!email || !password || !fullName) {
       showError("signup-error", "Nome, e-mail e senha são obrigatórios");
@@ -57,6 +81,7 @@ const Therapist = (() => {
     }
 
     setLoading("btn-signup", true);
+    clearError("signup-error");
     try {
       await DB.Auth.signUp({ email, password, fullName, crp, clinicName });
       showError("signup-error", "✅ Conta criada! Verifique seu e-mail para confirmar.", "success");
@@ -68,15 +93,34 @@ const Therapist = (() => {
   }
 
   async function signOut() {
-    await DB.Auth.signOut();
+    try {
+      await DB.Auth.signOut();
+    } catch {}
+    // Garante reset mesmo se o signOut falhar
+    profile = null;
+    setHeaderVisible(false);
     showView("view-auth");
   }
 
   // ─── DASHBOARD ───────────────────────────────────────────────────────────
   async function loadDashboard() {
-    profile = await DB.Auth.getProfile();
-    if (!profile) { showView("view-auth"); return; }
+    try {
+      profile = await DB.Auth.getProfile();
+    } catch (e) {
+      // getProfile pode lançar se o INSERT do perfil falhar
+      showError("auth-error", "Erro ao carregar perfil: " + (e.message || "tente novamente"));
+      setHeaderVisible(false);
+      showView("view-auth");
+      return;
+    }
 
+    if (!profile) {
+      setHeaderVisible(false);
+      showView("view-auth");
+      return;
+    }
+
+    setHeaderVisible(true);
     showView("view-dashboard");
     renderProfile();
     await renderPatients();
@@ -111,7 +155,7 @@ const Therapist = (() => {
       const lastSeen = p.last_seen_at
         ? new Date(p.last_seen_at).toLocaleDateString("pt-BR")
         : "Nunca acessou";
-      const inviteUrl = `${location.origin}/index.html?token=${p.invite_token}`;
+      const inviteUrl = `${location.origin}${location.pathname.replace("therapist.html", "")}index.html?token=${p.invite_token}`;
 
       return `<div class="patient-card ${!p.active ? "inactive" : ""}">
         <div class="patient-info">
@@ -139,7 +183,7 @@ const Therapist = (() => {
     setLoading("btn-create-patient", true);
     try {
       const patient = await DB.Therapist.createPatient(name || null);
-      const inviteUrl = `${location.origin}/index.html?token=${patient.invite_token}`;
+      const inviteUrl = `${location.origin}${location.pathname.replace("therapist.html", "")}index.html?token=${patient.invite_token}`;
       document.getElementById("new-patient-name").value = "";
       document.getElementById("invite-url-display").textContent = inviteUrl;
       document.getElementById("invite-result").style.display = "block";
@@ -167,6 +211,7 @@ const Therapist = (() => {
 
   // ─── VER REGISTROS ────────────────────────────────────────────────────────
   async function viewRecords(patientId, patientName) {
+    if (!profile) return; // proteção extra: não abre sem sessão
     showView("view-patient-records");
     document.getElementById("pr-patient-name").textContent = patientName;
     document.getElementById("pr-records-area").innerHTML =
@@ -186,32 +231,31 @@ const Therapist = (() => {
           <span class="pr-date">${esc(r.datetime)}</span>
           <span class="pr-anx">Anx: ${r.anxiety1}/10 → ${r.anxiety2}/10</span>
         </div>
-        ${r.situation ? `<div class="pr-field"><label>Situação</label><p>${esc(r.situation)}</p></div>` : ""}
-        ${r.thought ? `<div class="pr-field"><label>Pensamento</label><p>${esc(r.thought)}</p></div>` : ""}
-        ${r.feeling ? `<div class="pr-field"><label>Sentimento</label><p>${esc(r.feeling)}</p></div>` : ""}
-        ${r.alt_thought ? `<div class="pr-field"><label>Pensamento Alternativo</label><p>${esc(r.alt_thought)}</p></div>` : ""}
+        ${r.situation  ? `<div class="pr-field"><label>Situação</label><p>${esc(r.situation)}</p></div>`  : ""}
+        ${r.thought    ? `<div class="pr-field"><label>Pensamento</label><p>${esc(r.thought)}</p></div>`   : ""}
+        ${r.feeling    ? `<div class="pr-field"><label>Sentimento</label><p>${esc(r.feeling)}</p></div>`   : ""}
+        ${r.alt_thought? `<div class="pr-field"><label>Pensamento Alternativo</label><p>${esc(r.alt_thought)}</p></div>` : ""}
       </div>`).join("");
   }
 
   // ─── SETTINGS ────────────────────────────────────────────────────────────
   function showSettings() {
+    if (!profile) return; // bloqueia acesso sem sessão
     showView("view-settings");
-    if (!profile) return;
-    document.getElementById("s-full-name").value  = profile.full_name || "";
-    document.getElementById("s-crp").value        = profile.crp || "";
-    document.getElementById("s-clinic").value     = profile.clinic_name || "";
-    document.getElementById("s-report-email").value =
-      profile.settings?.report_email || profile.email || "";
-    document.getElementById("s-cycle-days").value =
-      profile.settings?.cycle_days || 10;
+    document.getElementById("s-full-name").value    = profile.full_name || "";
+    document.getElementById("s-crp").value          = profile.crp || "";
+    document.getElementById("s-clinic").value       = profile.clinic_name || "";
+    document.getElementById("s-report-email").value = profile.settings?.report_email || profile.email || "";
+    document.getElementById("s-cycle-days").value   = profile.settings?.cycle_days || 10;
   }
 
   async function saveSettings() {
-    const fullName   = document.getElementById("s-full-name")?.value.trim();
-    const crp        = document.getElementById("s-crp")?.value.trim();
-    const clinicName = document.getElementById("s-clinic")?.value.trim();
-    const reportEmail= document.getElementById("s-report-email")?.value.trim();
-    const cycleDays  = parseInt(document.getElementById("s-cycle-days")?.value || "10");
+    if (!profile) return;
+    const fullName    = document.getElementById("s-full-name")?.value.trim();
+    const crp         = document.getElementById("s-crp")?.value.trim();
+    const clinicName  = document.getElementById("s-clinic")?.value.trim();
+    const reportEmail = document.getElementById("s-report-email")?.value.trim();
+    const cycleDays   = parseInt(document.getElementById("s-cycle-days")?.value || "10");
 
     setLoading("btn-save-settings", true);
     try {
@@ -239,7 +283,7 @@ const Therapist = (() => {
   // ─── HELPERS ──────────────────────────────────────────────────────────────
   function esc(s) {
     return (s || "")
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   function showError(id, msg, type = "error") {
@@ -248,6 +292,13 @@ const Therapist = (() => {
     el.textContent = msg;
     el.className = `t-msg t-msg-${type}`;
     el.style.display = "block";
+  }
+
+  function clearError(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = "";
+    el.style.display = "none";
   }
 
   function setLoading(btnId, loading) {
