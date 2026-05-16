@@ -13,14 +13,26 @@ const Therapist = (() => {
     await loadDashboard();
   }
 
-  DB.Auth.onAuthChange(async (event) => {
-    if (event === "SIGNED_IN") {
-      setHeaderVisible(true);
-      await loadDashboard();
+  // TOKEN_REFRESHED: sessão renovada automaticamente pelo supabase-js — normal, ignora.
+  // SIGNED_OUT: pode ser logout manual OU token expirado sem refresh bem-sucedido.
+  // USER_UPDATED: metadados do usuário atualizados — ignora.
+  DB.Auth.onAuthChange(async (event, session) => {
+    if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (session) {
+        setHeaderVisible(true);
+        // Só recarrega dashboard se não estava logado (evita re-render desnecessário)
+        if (!profile) await loadDashboard();
+      }
+      return;
     }
     if (event === "SIGNED_OUT") {
+      const wasLoggedIn = !!profile;
       profile = null;
       setHeaderVisible(false);
+      if (wasLoggedIn) {
+        // Sessão expirou enquanto estava usando — mostra aviso antes de voltar ao login
+        showSessionExpiredBanner();
+      }
       showView("view-auth");
     }
   });
@@ -31,10 +43,32 @@ const Therapist = (() => {
     document.getElementById(id)?.classList.add("active");
   }
 
-  // Esconde o header quando não há sessão para impedir acesso a views protegidas
   function setHeaderVisible(visible) {
     const header = document.querySelector(".t-header");
     if (header) header.style.display = visible ? "" : "none";
+  }
+
+  // Banner discreto na tela de login avisando que a sessão expirou
+  function showSessionExpiredBanner() {
+    const existing = document.getElementById("session-expired-banner");
+    if (existing) return;
+
+    const banner = document.createElement("div");
+    banner.id = "session-expired-banner";
+    banner.style.cssText = `
+      background:#fff8e6;border:1px solid #f0c040;border-radius:10px;
+      padding:10px 14px;font-size:0.84rem;color:#7a6010;
+      margin-bottom:16px;text-align:center;
+    `;
+    banner.textContent = "⏱️ Sua sessão expirou. Faça login novamente para continuar.";
+
+    // Insere antes do primeiro campo do formulário de login
+    const loginSection = document.getElementById("auth-login");
+    if (loginSection) loginSection.insertBefore(banner, loginSection.firstChild);
+  }
+
+  function clearSessionExpiredBanner() {
+    document.getElementById("session-expired-banner")?.remove();
   }
 
   // ─── AUTH ─────────────────────────────────────────────────────────────────
@@ -45,10 +79,9 @@ const Therapist = (() => {
 
     setLoading("btn-signin", true);
     clearError("auth-error");
+    clearSessionExpiredBanner();
     try {
       await DB.Auth.signIn({ email, password });
-      // loadDashboard é chamado pelo onAuthChange SIGNED_IN
-      // mas chamamos diretamente também para garantir em caso de evento já disparado
       await loadDashboard();
     } catch (e) {
       const msg = e.message?.toLowerCase() || "";
@@ -93,10 +126,7 @@ const Therapist = (() => {
   }
 
   async function signOut() {
-    try {
-      await DB.Auth.signOut();
-    } catch {}
-    // Garante reset mesmo se o signOut falhar
+    try { await DB.Auth.signOut(); } catch {}
     profile = null;
     setHeaderVisible(false);
     showView("view-auth");
@@ -107,7 +137,6 @@ const Therapist = (() => {
     try {
       profile = await DB.Auth.getProfile();
     } catch (e) {
-      // getProfile pode lançar se o INSERT do perfil falhar
       showError("auth-error", "Erro ao carregar perfil: " + (e.message || "tente novamente"));
       setHeaderVisible(false);
       showView("view-auth");
@@ -211,7 +240,7 @@ const Therapist = (() => {
 
   // ─── VER REGISTROS ────────────────────────────────────────────────────────
   async function viewRecords(patientId, patientName) {
-    if (!profile) return; // proteção extra: não abre sem sessão
+    if (!profile) return;
     showView("view-patient-records");
     document.getElementById("pr-patient-name").textContent = patientName;
     document.getElementById("pr-records-area").innerHTML =
@@ -231,16 +260,16 @@ const Therapist = (() => {
           <span class="pr-date">${esc(r.datetime)}</span>
           <span class="pr-anx">Anx: ${r.anxiety1}/10 → ${r.anxiety2}/10</span>
         </div>
-        ${r.situation  ? `<div class="pr-field"><label>Situação</label><p>${esc(r.situation)}</p></div>`  : ""}
-        ${r.thought    ? `<div class="pr-field"><label>Pensamento</label><p>${esc(r.thought)}</p></div>`   : ""}
-        ${r.feeling    ? `<div class="pr-field"><label>Sentimento</label><p>${esc(r.feeling)}</p></div>`   : ""}
-        ${r.alt_thought? `<div class="pr-field"><label>Pensamento Alternativo</label><p>${esc(r.alt_thought)}</p></div>` : ""}
+        ${r.situation   ? `<div class="pr-field"><label>Situação</label><p>${esc(r.situation)}</p></div>`   : ""}
+        ${r.thought     ? `<div class="pr-field"><label>Pensamento</label><p>${esc(r.thought)}</p></div>`    : ""}
+        ${r.feeling     ? `<div class="pr-field"><label>Sentimento</label><p>${esc(r.feeling)}</p></div>`    : ""}
+        ${r.alt_thought ? `<div class="pr-field"><label>Pensamento Alternativo</label><p>${esc(r.alt_thought)}</p></div>` : ""}
       </div>`).join("");
   }
 
   // ─── SETTINGS ────────────────────────────────────────────────────────────
   function showSettings() {
-    if (!profile) return; // bloqueia acesso sem sessão
+    if (!profile) return;
     showView("view-settings");
     document.getElementById("s-full-name").value    = profile.full_name || "";
     document.getElementById("s-crp").value          = profile.crp || "";
@@ -282,8 +311,7 @@ const Therapist = (() => {
 
   // ─── HELPERS ──────────────────────────────────────────────────────────────
   function esc(s) {
-    return (s || "")
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   function showError(id, msg, type = "error") {

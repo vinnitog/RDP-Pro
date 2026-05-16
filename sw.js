@@ -1,20 +1,33 @@
-const CACHE_NAME = 'rdp-pro-v1.3';
+// RDP Pro — Service Worker
+// Estratégia: network-first para JS/CSS/HTML (garante updates imediatos),
+// cache-first para assets estáticos (ícones, manifest).
+// Incrementar CACHE_NAME a cada deploy.
 
-const ASSETS = [
-  './',
-  './index.html',
+const CACHE_NAME = 'rdp-pro-v1.4';
+
+const STATIC_ASSETS = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+];
+
+const NETWORK_FIRST = [
+  './index.html',
+  './',
   './css/app.css',
+  './css/therapist.css',
   './js/config.js',
   './js/db.js',
   './js/app.js',
+  './js/therapist.js',
+  './therapist.html',
 ];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS).catch(() => {}))
+    caches.open(CACHE_NAME).then(cache =>
+      cache.addAll([...STATIC_ASSETS, ...NETWORK_FIRST]).catch(() => {})
+    )
   );
   self.skipWaiting();
 });
@@ -31,23 +44,37 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   if (e.request.url.startsWith('chrome-extension')) return;
-  // Não faz cache de chamadas ao Supabase ou CDNs externos
-  if (e.request.url.includes('supabase.co') ||
-      e.request.url.includes('googleapis.com') ||
-      e.request.url.includes('jsdelivr.net') ||
-      e.request.url.includes('cdnjs.cloudflare.com')) return;
 
+  // Nunca intercepta chamadas externas
+  const external = ['supabase.co', 'googleapis.com', 'jsdelivr.net', 'cdnjs.cloudflare.com', 'fonts.g'];
+  if (external.some(d => e.request.url.includes(d))) return;
+
+  const url = new URL(e.request.url);
+  const path = url.pathname;
+
+  // Assets estáticos: cache-first (ícones, manifest — mudam raramente)
+  const isStatic = STATIC_ASSETS.some(a => path.endsWith(a.replace('./', '/')));
+  if (isStatic) {
+    e.respondWith(
+      caches.match(e.request).then(cached => cached || fetch(e.request))
+    );
+    return;
+  }
+
+  // JS, CSS, HTML: network-first — garante que deploys aparecem no Ctrl+R
+  // Fallback para cache se offline
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(response => {
-        if (!response || response.status !== 200) return response;
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+    fetch(e.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        }
         return response;
-      }).catch(() => {
+      })
+      .catch(() => caches.match(e.request).then(cached => {
+        if (cached) return cached;
         if (e.request.mode === 'navigate') return caches.match('./index.html');
-      });
-    })
+      }))
   );
 });
