@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4a5535">
+<title>RDP Pro — Painel do Profissional</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/therapist.css">
+</head>
+<body>
+
+<header class="t-header">
+  <h1>🧠 RDP Pro — Painel do Profissional</h1>
+  <div class="t-header-actions">
+    <button class="t-btn" onclick="Therapist.showSettings()">⚙️ Configurações</button>
+    <button class="t-btn" onclick="Therapist.signOut()">Sair</button>
+  </div>
+</header>
+
+<!-- ─── AUTH ────────────────────────────────────────────────────────────── -->
+<div class="t-view active" id="view-auth">
+  <div style="max-width:400px;margin:0 auto">
+    <div style="text-align:center;padding:32px 0 24px">
+      <div style="font-size:2.5rem;margin-bottom:8px">🧠</div>
+      <h2 style="font-family:'Lora',serif;color:var(--accent);font-size:1.2rem">RDP Pro</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px">Área do profissional de saúde mental</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">Entrar</button>
+      <button class="auth-tab" onclick="switchAuth('signup')">Criar conta</button>
+    </div>
+
+    <!-- Login -->
+    <div class="auth-section active" id="auth-login">
+      <div id="auth-error" class="t-msg"></div>
+      <div class="t-field">
+        <label>E-mail</label>
+        <input class="t-input" id="t-email" type="email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="t-field">
+        <label>Senha</label>
+        <input class="t-input" id="t-password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="t-btn t-btn-primary t-btn-full" id="btn-signin" onclick="Therapist.signIn()">Entrar</button>
+    </div>
+
+    <!-- Cadastro -->
+    <div class="auth-section" id="auth-signup">
+      <div id="signup-error" class="t-msg"></div>
+      <div class="t-field">
+        <label>Nome completo *</label>
+        <input class="t-input" id="signup-name" type="text" placeholder="Dra. Maria Silva" autocomplete="name">
+      </div>
+      <div class="t-field">
+        <label>E-mail *</label>
+        <input class="t-input" id="signup-email" type="email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="t-field">
+        <label>Senha * (mín. 6 caracteres)</label>
+        <input class="t-input" id="signup-password" type="password" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="settings-grid" style="margin-bottom:14px">
+        <div class="t-field" style="margin:0">
+          <label>CRP</label>
+          <input class="t-input" id="signup-crp" type="text" placeholder="06/123456">
+        </div>
+        <div class="t-field" style="margin:0">
+          <label>Consultório / Clínica</label>
+          <input class="t-input" id="signup-clinic" type="text" placeholder="Nome do consultório">
+        </div>
+      </div>
+      <button class="t-btn t-btn-primary t-btn-full" id="btn-signup" onclick="Therapist.signUp()">Criar conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DASHBOARD ────────────────────────────────────────────────────────── -->
+<div class="t-view" id="view-dashboard">
+  <div class="dashboard-profile">
+    <div class="profile-avatar">👩‍⚕️</div>
+    <div>
+      <div class="profile-name" id="t-profile-name">Carregando...</div>
+      <div class="profile-sub" id="t-profile-crp"></div>
+      <div class="profile-sub" id="t-profile-clinic"></div>
+    </div>
+    <div class="profile-actions">
+      <button class="t-btn t-btn-sm" onclick="Therapist.loadDashboard()">🔄</button>
+    </div>
+  </div>
+
+  <!-- Criar paciente -->
+  <div class="section-title">👥 Pacientes</div>
+  <div class="create-patient-row">
+    <input class="t-input" id="new-patient-name" type="text" placeholder="Nome do paciente (opcional)">
+    <button class="t-btn t-btn-primary" id="btn-create-patient" onclick="Therapist.createPatient()">+ Novo convite</button>
+  </div>
+  <div class="invite-result" id="invite-result">
+    🔗 Link de convite gerado:<br>
+    <strong id="invite-url-display" style="font-size:0.82rem"></strong><br><br>
+    <button class="t-btn t-btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('invite-url-display').textContent).then(()=>Therapist.showToast&&Therapist.showToast('Copiado!'))">📋 Copiar link</button>
+  </div>
+
+  <div id="patients-list">
+    <div class="t-loading">Carregando pacientes...</div>
+  </div>
+</div>
+
+<!-- ─── REGISTROS DO PACIENTE ─────────────────────────────────────────────── -->
+<div class="t-view" id="view-patient-records">
+  <div class="view-back">
+    <button class="t-btn t-btn-sm" onclick="Therapist.showView('view-dashboard')">← Voltar</button>
+    <div class="pr-patient-title" id="pr-patient-name"></div>
+  </div>
+  <div id="pr-records-area"></div>
+</div>
+
+<!-- ─── CONFIGURAÇÕES ─────────────────────────────────────────────────────── -->
+<div class="t-view" id="view-settings">
+  <div class="view-back">
+    <button class="t-btn t-btn-sm" onclick="Therapist.showView('view-dashboard')">← Voltar</button>
+    <span style="font-size:1rem;font-weight:500;color:var(--accent)">Configurações</span>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-card-title">👤 Dados profissionais</div>
+    <div class="settings-grid">
+      <div class="t-field">
+        <label>Nome completo</label>
+        <input class="t-input" id="s-full-name" type="text">
+      </div>
+      <div class="t-field">
+        <label>CRP</label>
+        <input class="t-input" id="s-crp" type="text" placeholder="06/123456">
+      </div>
+    </div>
+    <div class="t-field">
+      <label>Consultório / Clínica</label>
+      <input class="t-input" id="s-clinic" type="text">
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-card-title">📧 Relatórios</div>
+    <div class="t-field">
+      <label>E-mail para receber relatórios</label>
+      <input class="t-input" id="s-report-email" type="email" placeholder="seu@email.com">
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px">Os relatórios dos pacientes serão enviados para este e-mail.</p>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-card-title">⚙️ Ciclo dos pacientes</div>
+    <div class="t-field">
+      <label>Limite de dias por ciclo</label>
+      <input class="t-input" id="s-cycle-days" type="number" min="5" max="30" value="10">
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px">Após este número de dias, o paciente precisa enviar o histórico e iniciar um novo ciclo.</p>
+    </div>
+  </div>
+
+  <!-- Espaço reservado para integração de pagamentos -->
+  <div class="settings-card" style="border-style:dashed;opacity:0.6">
+    <div class="settings-card-title">💳 Plano e assinatura</div>
+    <p style="font-size:0.85rem;color:var(--text-muted)">Integração de pagamentos disponível em breve.</p>
+  </div>
+
+  <button class="t-btn t-btn-primary t-btn-full" id="btn-save-settings" onclick="Therapist.saveSettings()" style="margin-top:8px">
+    💾 Salvar configurações
+  </button>
+</div>
+
+<div class="toast" id="t-toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/therapist.js"></script>
+<script>
+function switchAuth(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='signup'&&i===1)));
+  document.getElementById('auth-login').classList.toggle('active', tab==='login');
+  document.getElementById('auth-signup').classList.toggle('active', tab==='signup');
+}
+
+// Copiar link de convite no dashboard
+window.Therapist = window.Therapist || {};
+if (!Therapist.showToast) {
+  Therapist.showToast = function(msg) {
+    const t = document.getElementById('t-toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RDP Pro">
+<meta name="theme-color" content="#4a5535">
+<title>RDP Pro — Registro de Pensamentos</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ─── ONBOARDING ────────────────────────────────────────────────────────── -->
+<div class="screen" id="screen-onboarding">
+  <div class="screen-center">
+    <div class="screen-card">
+      <div class="logo">🧠</div>
+      <h2>Bem-vindo(a) ao RDP Pro</h2>
+      <p>Seu psicólogo(a) te convidou para usar este app de Registro de Pensamentos (TCC).</p>
+
+      <div class="therapist-badge">
+        <strong id="ob-therapist-name">Carregando...</strong>
+        <span id="ob-clinic-name"></span>
+      </div>
+
+      <div style="text-align:left;margin-bottom:20px">
+        <div class="ob-step">
+          <span class="ob-step-icon">📝</span>
+          <div class="ob-step-text"><strong>Registre</strong> seus pensamentos automáticos e sentimentos</div>
+        </div>
+        <div class="ob-step">
+          <span class="ob-step-icon">🌱</span>
+          <div class="ob-step-text"><strong>Reflita</strong> e encontre pensamentos alternativos mais equilibrados</div>
+        </div>
+        <div class="ob-step">
+          <span class="ob-step-icon">📧</span>
+          <div class="ob-step-text"><strong>Envie</strong> o relatório direto para seu psicólogo(a) antes da sessão</div>
+        </div>
+        <div class="ob-step">
+          <span class="ob-step-icon">🔒</span>
+          <div class="ob-step-text"><strong>Privacidade:</strong> seus dados ficam <strong>apenas no seu dispositivo</strong></div>
+        </div>
+      </div>
+
+      <input class="ob-input" id="ob-patient-name" type="text" placeholder="Qual é o seu nome?" autocomplete="name">
+      <button class="btn-save" onclick="App.submitOnboarding()">Começar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOKEN INVÁLIDO ────────────────────────────────────────────────────── -->
+<div class="screen" id="screen-invalid-token">
+  <div class="screen-center">
+    <div class="screen-card">
+      <div class="logo">🔒</div>
+      <h2>Link inválido</h2>
+      <p>Este link de convite não é válido ou já expirou.<br>Solicite um novo link ao seu psicólogo(a).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SEM SESSÃO ────────────────────────────────────────────────────────── -->
+<div class="screen" id="screen-no-session">
+  <div class="screen-center">
+    <div class="screen-card">
+      <div class="logo">🧠</div>
+      <h2>RDP Pro</h2>
+      <p>Para usar este app, você precisa do link de convite do seu psicólogo(a).</p>
+      <p style="margin-top:12px;font-size:0.82rem;color:#aaa">Se você já usou o app antes e perdeu o acesso, abra o link de convite novamente.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── APP PRINCIPAL ─────────────────────────────────────────────────────── -->
+<div class="screen" id="screen-app">
+
+  <header>
+    <div class="header-left">
+      <button class="theme-btn" onclick="App.toggleTheme()" id="theme-btn" title="Alternar tema">🌙</button>
+    </div>
+    <div class="header-title">
+      <h1>🧠 Registro de Pensamentos</h1>
+      <p id="therapist-name-header">RDP Pro</p>
+    </div>
+    <div style="width:40px;text-align:right;font-size:0.72rem;color:#b5c49a;padding-right:4px" id="patient-name-header"></div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="App.showTab('form',this)">📝 Formulário</div>
+    <div class="tab" onclick="App.showTab('history',this)">📋 Histórico</div>
+    <div class="tab" onclick="App.showTab('insights',this)">📈 Insights</div>
+    <div class="tab" onclick="App.showTab('privacy',this)">🔒 Privacidade</div>
+  </div>
+
+  <!-- FORMULÁRIO -->
+  <div class="page active" id="page-form">
+    <div id="form-locked" class="locked-banner" style="display:none">
+      <h3>🔒 Limite de dias atingido</h3>
+      <p>Você não pode salvar novos registros até enviar o histórico e limpar o ciclo.</p>
+      <button class="btn-go-history" onclick="App.goHistory()">📋 Ir para o Histórico</button>
+    </div>
+    <div id="form-content">
+      <div class="form-area">
+        <div class="field-card">
+          <label>📅 Data / Hora</label>
+          <div class="datetime-row">
+            <input type="date" id="f-date">
+            <input type="time" id="f-time">
+            <button class="btn-now" onclick="App.setNow()">Agora</button>
+          </div>
+        </div>
+        <div class="field-card">
+          <label>📍 Situação <span class="char-count" id="cc-situation"></span></label>
+          <textarea id="f-situation" placeholder="onde você estava, o que aconteceu, com quem..." oninput="App.autoResize(this);App.updateCount('f-situation','cc-situation')"></textarea>
+        </div>
+        <div class="field-card">
+          <label>💭 Pensamento Automático <span class="char-count" id="cc-thought"></span></label>
+          <textarea id="f-thought" placeholder="o que passou pela sua cabeça naquele momento..." oninput="App.autoResize(this);App.updateCount('f-thought','cc-thought')"></textarea>
+        </div>
+        <div class="field-card">
+          <label>❤️ Sentimento <span class="char-count" id="cc-feeling"></span></label>
+          <textarea id="f-feeling" placeholder="que emoção você sentiu — ansiedade, tristeza, raiva..." oninput="App.autoResize(this);App.updateCount('f-feeling','cc-feeling')"></textarea>
+        </div>
+        <div class="field-card">
+          <label>📊 Grau de Ansiedade Inicial (0–10)</label>
+          <div class="slider-row">
+            <input type="range" min="0" max="10" value="0" id="f-anxiety1" oninput="document.getElementById('anx1-val').textContent=this.value">
+            <span class="slider-val" id="anx1-val">0</span>
+          </div>
+        </div>
+        <div class="field-card">
+          <label>⚡ Reação / Comportamento <span class="char-count" id="cc-reaction"></span></label>
+          <textarea id="f-reaction" placeholder="como você reagiu, o que fez..." oninput="App.autoResize(this);App.updateCount('f-reaction','cc-reaction')"></textarea>
+        </div>
+        <div class="field-card">
+          <label>🌱 Pensamento Alternativo <span class="char-count" id="cc-alt"></span></label>
+          <textarea id="f-alt-thought" placeholder="uma forma mais equilibrada de ver a situação..." oninput="App.autoResize(this);App.updateCount('f-alt-thought','cc-alt')"></textarea>
+        </div>
+        <div class="field-card">
+          <label>📊 Grau de Ansiedade Final (0–10)</label>
+          <div class="slider-row">
+            <input type="range" min="0" max="10" value="0" id="f-anxiety2" oninput="document.getElementById('anx2-val').textContent=this.value">
+            <span class="slider-val" id="anx2-val">0</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-clear" onclick="App.clearForm()">🗑️ Limpar</button>
+        <button class="btn-save" id="btn-save" onclick="App.saveRecord()">💾 Salvar Registro</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div class="page" id="page-history">
+    <div class="history-area" id="history-area"></div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="page" id="page-insights">
+    <div class="insights-area" id="insights-area"></div>
+  </div>
+
+  <!-- PRIVACIDADE -->
+  <div class="page" id="page-privacy">
+    <div class="privacy-info">
+      <strong>🔒 Seus dados são 100% privados</strong><br><br>
+      Todos os seus registros são armazenados <strong>apenas no seu dispositivo</strong> (memória local do app). Eles nunca são enviados para nenhum servidor sem a sua ação explícita.<br><br>
+      Quando você toca em <strong>"📧 Enviar Relatório"</strong>, os dados são transmitidos de forma segura diretamente para o e-mail do seu psicólogo(a). Nenhum terceiro tem acesso.<br><br>
+      O app não coleta dados analíticos, não tem rastreamento, não tem anúncios.<br><br>
+      <strong>Para Android:</strong> instale o app tocando em "Adicionar à tela inicial" no Chrome.<br>
+      <strong>Para iPhone:</strong> abra no Safari e toque em "Compartilhar → Adicionar à Tela de Início".
+    </div>
+    <div style="padding:0 20px 20px">
+      <div class="field-card" style="text-align:center">
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:10px">Versão do app</p>
+        <p style="font-family:'Lora',serif;font-size:1.1rem;color:var(--accent)">RDP Pro v1.0.0</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /screen-app -->
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

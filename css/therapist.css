@@ -1,0 +1,219 @@
+/* RDP Pro — Painel do Psicólogo */
+
+:root {
+  --accent: #6b7c4a;
+  --accent2: #8a9e60;
+  --border: #d4d9c8;
+  --surface: #ffffff;
+  --surface2: #f0ede6;
+  --bg: #f8f6f0;
+  --text: #1e1e1e;
+  --text-muted: #6b7c4a;
+}
+
+[data-theme="dark"] {
+  --accent: #8a9e60;
+  --accent2: #6b7c4a;
+  --border: #3a3f30;
+  --surface: #252525;
+  --surface2: #2e2e2e;
+  --bg: #1c1c1c;
+  --text: #e0e0e0;
+  --text-muted: #9aaa80;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
+.t-header {
+  background: #4a5535;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.t-header h1 {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: #e8edda;
+}
+.t-header-actions { display: flex; gap: 8px; }
+
+.t-view { display: none; max-width: 720px; margin: 0 auto; padding: 24px 20px; }
+.t-view.active { display: block; }
+
+/* ─── AUTH ───────────────────────────────────────────────────────────────── */
+.auth-tabs { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.9rem; cursor: pointer; background: transparent; border: none; color: var(--text-muted); transition: all 0.2s; }
+.auth-tab.active { background: var(--accent); color: white; }
+
+.auth-section { display: none; }
+.auth-section.active { display: block; }
+
+.t-field { margin-bottom: 14px; }
+.t-field label { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 500; margin-bottom: 6px; }
+.t-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface2);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.t-input:focus { border-color: var(--accent); }
+
+.t-msg { display: none; font-size: 0.85rem; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+.t-msg-error { background: #fdecea; color: #b94040; }
+.t-msg-success { background: #eef0e8; color: #4a5535; }
+
+/* ─── BOTÕES ─────────────────────────────────────────────────────────────── */
+.t-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.t-btn:hover { background: var(--surface2); }
+.t-btn-primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.t-btn-primary:hover { opacity: 0.9; }
+.t-btn-sm { padding: 6px 11px; font-size: 0.82rem; }
+.t-btn-danger { border-color: #f0c4c4; color: #b94040; }
+.t-btn-danger:hover { background: #fdecea; }
+.t-btn-full { width: 100%; }
+
+/* ─── DASHBOARD ──────────────────────────────────────────────────────────── */
+.dashboard-profile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.profile-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: white; flex-shrink: 0;
+}
+.profile-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.profile-sub { font-size: 0.84rem; color: var(--text-muted); }
+.profile-actions { margin-left: auto; display: flex; gap: 8px; }
+
+.section-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.create-patient-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.create-patient-row .t-input { flex: 1; }
+
+.invite-result {
+  display: none;
+  background: #eef0e8;
+  border: 1px solid #6b7c4a;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.84rem;
+  color: #4a5535;
+  margin-bottom: 14px;
+  word-break: break-all;
+}
+[data-theme="dark"] .invite-result { background: #2e3228; color: #b5c49a; border-color: #8a9e60; }
+
+/* ─── PATIENT CARDS ──────────────────────────────────────────────────────── */
+.patient-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.patient-card.inactive { opacity: 0.6; }
+.patient-name { font-size: 0.98rem; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.patient-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+.patient-meta span { font-size: 0.78rem; color: var(--text-muted); }
+.patient-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.t-loading { text-align: center; padding: 30px; color: var(--text-muted); font-style: italic; }
+.t-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); font-style: italic; }
+
+/* ─── RECORDS VIEW ───────────────────────────────────────────────────────── */
+.view-back { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.pr-patient-title { font-family: 'Lora', serif; font-size: 1.1rem; color: var(--accent); }
+
+.pr-record {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.pr-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pr-date { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.pr-anx { font-size: 0.84rem; font-weight: 600; color: var(--accent); }
+.pr-field label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 2px; margin-top: 8px; }
+.pr-field p { font-size: 0.92rem; color: var(--text); line-height: 1.5; }
+
+/* ─── SETTINGS ───────────────────────────────────────────────────────────── */
+.settings-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.settings-card-title { font-size: 0.85rem; font-weight: 600; color: var(--accent); margin-bottom: 16px; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .settings-grid { grid-template-columns: 1fr; } }
+
+/* ─── TOAST ──────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: var(--bg);
+  padding: 10px 20px; border-radius: 30px; font-size: 0.85rem;
+  opacity: 0; transition: all 0.3s; z-index: 200; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
