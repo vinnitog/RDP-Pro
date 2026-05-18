@@ -2,6 +2,8 @@
 
 const Therapist = (() => {
   let profile = null;
+  let dashboardPromise = null;
+  let authEnterBound = false;
 
   function buildPatientInviteUrl(token) {
     const url = new URL("paciente.html", location.href);
@@ -11,17 +13,23 @@ const Therapist = (() => {
   }
 
   async function init() {
-    const session = await DB.Auth.getSession();
-    if (!session) {
+    _bindAuthEnter();
+    try {
+      const session = await DB.Auth.getSession();
+      if (!session) {
+        showView("view-autenticacao");
+        return;
+      }
+      await loadDashboardOnce();
+    } catch (e) {
       showView("view-autenticacao");
-      // [UX] Enter para submeter nos campos de login
-      _bindAuthEnter();
-      return;
+      handleDashboardError(e);
     }
-    await loadDashboard();
   }
 
   function _bindAuthEnter() {
+    if (authEnterBound) return;
+    authEnterBound = true;
     const onEnter = (fn) => (e) => { if (e.key === "Enter") fn(); };
     ["t-email", "t-password"].forEach((id) => {
       document.getElementById(id)?.addEventListener("keydown", onEnter(signIn));
@@ -31,9 +39,17 @@ const Therapist = (() => {
     });
   }
 
-  DB.Auth.onAuthChange(async (event) => {
-    if (event === "SIGNED_IN") await loadDashboard();
-    if (event === "SIGNED_OUT") showView("view-autenticacao");
+  DB.Auth.onAuthChange((event) => {
+    if (event === "SIGNED_IN") {
+      setTimeout(() => {
+        loadDashboardOnce().catch(handleDashboardError);
+      }, 0);
+    }
+    if (event === "SIGNED_OUT") {
+      profile = null;
+      showView("view-autenticacao");
+      setLoading("btn-signin", false);
+    }
   });
 
   // ─── VIEWS ───────────────────────────────────────────────────────────────
@@ -51,9 +67,16 @@ const Therapist = (() => {
     setLoading("btn-signin", true);
     try {
       await DB.Auth.signIn({ email, password });
-      await loadDashboard();
     } catch (e) {
       showError("auth-error", "E-mail ou senha incorretos");
+      setLoading("btn-signin", false);
+      return;
+    }
+
+    try {
+      await loadDashboardOnce();
+    } catch (e) {
+      handleDashboardError(e);
     } finally {
       setLoading("btn-signin", false);
     }
@@ -99,6 +122,20 @@ const Therapist = (() => {
     showView("view-painel");
     renderProfile();
     await renderPatients();
+  }
+
+  function loadDashboardOnce() {
+    if (!dashboardPromise) {
+      dashboardPromise = loadDashboard().finally(() => {
+        dashboardPromise = null;
+      });
+    }
+    return dashboardPromise;
+  }
+
+  function handleDashboardError(e) {
+    console.warn("Erro ao carregar painel:", e);
+    showError("auth-error", "Login feito, mas nao foi possivel carregar o painel. Atualize a pagina.");
   }
 
   function renderProfile() {
