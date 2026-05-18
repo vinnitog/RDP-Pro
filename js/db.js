@@ -23,8 +23,17 @@ const DB = (() => {
     rm:  (key) => localStorage.removeItem(key),
   };
 
+  // Gera UUID v4 compatível com PostgreSQL uuid primary key
+  function generateUUID() {
+    if (crypto?.randomUUID) return crypto.randomUUID();
+    // Fallback para navegadores sem crypto.randomUUID
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+    });
+  }
+
   // ─── SESSION DO PACIENTE ────────────────────────────────────────────────────
-  // Paciente não faz login — é identificado pelo invite_token da URL
   const Patient = {
     save(data) { LS.set("rdp_patient_session", data); },
     get() { return LS.get("rdp_patient_session"); },
@@ -63,7 +72,8 @@ const DB = (() => {
 
     add(record) {
       const all = Records.getAll();
-      const newRecord = { ...record, id: Date.now(), synced: false };
+      // UUID real — o banco exige uuid, Date.now() era rejeitado com 400
+      const newRecord = { ...record, id: generateUUID(), synced: false };
       all.unshift(newRecord);
       Records.save(all);
       Records.syncPending().catch(console.warn);
@@ -100,7 +110,7 @@ const DB = (() => {
         const { error } = await client()
           .from("records")
           .upsert({
-            id:           String(r.id),
+            id:           r.id,   // já é UUID válido
             patient_id:   session.patient_id,
             therapist_id: session.therapist_id,
             datetime:     r.datetime,
@@ -129,9 +139,6 @@ const DB = (() => {
 
   // ─── AUTH DO PSICÓLOGO ──────────────────────────────────────────────────────
   const Auth = {
-    // Salva dados do perfil nos metadados do auth.
-    // INSERT na tabela therapists ocorre no primeiro getProfile(),
-    // quando já há sessão autenticada (após confirmação de e-mail).
     async signUp({ email, password, fullName, crp, clinicName }) {
       const { data, error } = await client().auth.signUp({
         email,
@@ -167,7 +174,6 @@ const DB = (() => {
       const session = await Auth.getSession();
       if (!session) return null;
 
-      // Busca sem .single() para evitar exceção PGRST116 quando não existe
       const { data: rows, error: fetchError } = await client()
         .from("therapists")
         .select("*")
@@ -177,9 +183,7 @@ const DB = (() => {
       if (fetchError) throw fetchError;
       if (rows && rows.length > 0) return rows[0];
 
-      // Perfil não existe ainda — primeiro login após confirmar e-mail.
-      // user_metadata pode não estar disponível em todos os provedores,
-      // então buscamos a sessão mais fresca antes de ler os metadados.
+      // Primeiro login após confirmar e-mail — cria perfil agora com sessão ativa
       const { data: refreshed } = await client().auth.refreshSession();
       const meta = refreshed?.session?.user?.user_metadata
         || session.user.user_metadata
@@ -279,10 +283,13 @@ const DB = (() => {
             "Authorization": `Bearer ${window.RDP_CONFIG.supabase.anonKey}`,
           },
           body: JSON.stringify({
-            patient_id:   session.patient_id,
-            invite_token: session.invite_token,
+            patient_id:        session.patient_id,
+            invite_token:      session.invite_token,
             records,
-            patient_name: session.patient_name || "Paciente",
+            patient_name:      session.patient_name || "Paciente",
+            // Offset do fuso horário do cliente em minutos (ex: -180 para BRT)
+            // A Edge Function usa isso para formatar o timestamp corretamente
+            timezone_offset:   new Date().getTimezoneOffset(),
           }),
         }
       );

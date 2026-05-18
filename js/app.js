@@ -646,6 +646,16 @@ const App = (() => {
     showToast("Registro deletado");
   }
 
+  // ─── LOGOUT DO PACIENTE ───────────────────────────────────────────────────
+  function patientLogout() {
+    if (!confirm("Sair deste dispositivo?\n\nSeus registros ficam salvos aqui. Para acessar novamente, use o link de convite do seu psicólogo(a).")) return;
+    DB.Patient.clear();
+    state.session = null;
+    state.records = [];
+    showScreen("screen-no-session");
+    showToast("Sessão encerrada.");
+  }
+
   // ─── TOAST ────────────────────────────────────────────────────────────────
   function showToast(msg) {
     const t = document.getElementById("toast");
@@ -662,7 +672,7 @@ const App = (() => {
     init, submitOnboarding, toggleTheme, showTab, goHistory,
     setNow, autoResize, updateCount, clearForm, saveRecord,
     sendReport, exportPDF, confirmClear,
-    toggleItem, loadRecord, deleteRecord, showToast,
+    toggleItem, loadRecord, deleteRecord, patientLogout, showToast,
     renderInsights,
   };
 })();

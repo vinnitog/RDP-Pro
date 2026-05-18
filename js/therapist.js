@@ -2,6 +2,7 @@
 
 const Therapist = (() => {
   let profile = null;
+  let _manualSignOut = false;
 
   // Monta a base URL do app de forma robusta, independente do subdiretório do GitHub Pages.
   // Ex: https://vinnitog.github.io/RDP-Pro/therapist.html → https://vinnitog.github.io/RDP-Pro/
@@ -30,10 +31,12 @@ const Therapist = (() => {
       return;
     }
     if (event === "SIGNED_OUT") {
+      const wasManual = _manualSignOut;
+      _manualSignOut = false;
       const wasLoggedIn = !!profile;
       profile = null;
       setHeaderVisible(false);
-      if (wasLoggedIn) showSessionExpiredBanner();
+      if (wasLoggedIn && !wasManual) showSessionExpiredBanner();
       showView("view-auth");
     }
   });
@@ -131,6 +134,7 @@ const Therapist = (() => {
   }
 
   async function signOut() {
+    _manualSignOut = true;
     try { await DB.Auth.signOut(); } catch {}
     profile = null;
     setHeaderVisible(false);

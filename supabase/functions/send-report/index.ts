@@ -11,6 +11,7 @@ interface ReportPayload {
   invite_token: string;
   records: Record<string, unknown>[];
   patient_name?: string;
+  timezone_offset?: number; // minutos de offset do cliente (ex: -180 para BRT UTC-3)
 }
 
 serve(async (req) => {
@@ -25,7 +26,7 @@ serve(async (req) => {
     );
 
     const payload: ReportPayload = await req.json();
-    const { patient_id, invite_token, records, patient_name } = payload;
+    const { patient_id, invite_token, records, patient_name, timezone_offset } = payload;
 
     // Valida token e busca dados do psicólogo
     const { data: patientData, error: patientError } = await supabase
@@ -57,7 +58,11 @@ serve(async (req) => {
     }
 
     // Monta corpo do e-mail em HTML
-    const now = new Date().toLocaleDateString("pt-BR");
+    // Usa o offset do cliente para exibir a data/hora no fuso correto (evita divergência UTC vs BRT)
+    const offsetMs = typeof timezone_offset === "number" ? timezone_offset * 60 * 1000 : 0;
+    const clientNow = new Date(Date.now() - offsetMs);
+    const now = clientNow.toLocaleDateString("pt-BR");
+    const nowFull = clientNow.toLocaleString("pt-BR");
     const patientLabel = patient_name || "Paciente";
     const therapistName = patientData.therapist_name || "Profissional";
     const clinicName = patientData.clinic_name || "";
@@ -128,7 +133,7 @@ serve(async (req) => {
       </div>
 
       <p style="margin:24px 0 0;font-size:11px;color:#aaa;text-align:center">
-        Enviado pelo app RDP Pro · ${new Date().toLocaleString("pt-BR")}
+        Enviado pelo app RDP Pro · ${nowFull}
       </p>
     </div>
   </div>
