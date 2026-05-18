@@ -15,3 +15,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Arquivo de Contexto
+context.md
