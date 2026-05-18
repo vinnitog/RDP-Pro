@@ -465,7 +465,8 @@ const App = (() => {
     html += renderChart(records);
 
     if (!records.length) {
-      html += `<div class="history-empty"><div class="icon">📖</div><p>Nenhum registro ainda.<br>Preencha o formulário!</p></div>`;
+      // [UI] empty state com CTA — direciona o usuário para a ação
+      html += `<div class="history-empty"><div class="icon">📖</div><p>Nenhum registro ainda.<br>Preencha o formulário!</p><button class="empty-cta" onclick="App.showTab('form', document.querySelectorAll('.tab')[0])">📝 Fazer primeiro registro</button></div>`;
     } else {
       html += `<div class="days-counter">📅 <span>${dias}</span> dia${dias !== 1 ? "s" : ""} de ${state.maxDays}</div>`;
       html += records.map((r) => {
@@ -646,16 +647,6 @@ const App = (() => {
     showToast("Registro deletado");
   }
 
-  // ─── LOGOUT DO PACIENTE ───────────────────────────────────────────────────
-  function patientLogout() {
-    if (!confirm("Sair deste dispositivo?\n\nSeus registros ficam salvos aqui. Para acessar novamente, use o link de convite do seu psicólogo(a).")) return;
-    DB.Patient.clear();
-    state.session = null;
-    state.records = [];
-    showScreen("screen-no-session");
-    showToast("Sessão encerrada.");
-  }
-
   // ─── TOAST ────────────────────────────────────────────────────────────────
   function showToast(msg) {
     const t = document.getElementById("toast");
@@ -672,7 +663,7 @@ const App = (() => {
     init, submitOnboarding, toggleTheme, showTab, goHistory,
     setNow, autoResize, updateCount, clearForm, saveRecord,
     sendReport, exportPDF, confirmClear,
-    toggleItem, loadRecord, deleteRecord, patientLogout, showToast,
+    toggleItem, loadRecord, deleteRecord, showToast,
     renderInsights,
   };
 })();
