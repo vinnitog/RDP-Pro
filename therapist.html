@@ -37,11 +37,11 @@
       <div id="auth-error" class="t-msg"></div>
       <div class="t-field">
         <label>E-mail</label>
-        <input class="t-input" id="t-email" type="email" placeholder="seu@email.com" autocomplete="email">
+        <input class="t-input" id="t-email" type="email" placeholder="Digite seu e-mail" autocomplete="email">
       </div>
       <div class="t-field">
         <label>Senha</label>
-        <input class="t-input" id="t-password" type="password" placeholder="••••••••" autocomplete="current-password">
+        <input class="t-input" id="t-password" type="password" placeholder="Digite sua senha" autocomplete="current-password">
       </div>
       <button class="t-btn t-btn-primary t-btn-full" id="btn-signin" onclick="Therapist.signIn()">Entrar</button>
     </div>
@@ -51,24 +51,24 @@
       <div id="signup-error" class="t-msg"></div>
       <div class="t-field">
         <label>Nome completo *</label>
-        <input class="t-input" id="signup-name" type="text" placeholder="Dra. Maria Silva" autocomplete="name">
+        <input class="t-input" id="signup-name" type="text" placeholder="Ex: Dra. Maria Silva" autocomplete="name">
       </div>
       <div class="t-field">
         <label>E-mail *</label>
-        <input class="t-input" id="signup-email" type="email" placeholder="seu@email.com" autocomplete="email">
+        <input class="t-input" id="signup-email" type="email" placeholder="Digite seu e-mail profissional" autocomplete="email">
       </div>
       <div class="t-field">
         <label>Senha * (mín. 6 caracteres)</label>
-        <input class="t-input" id="signup-password" type="password" placeholder="••••••••" autocomplete="new-password">
+        <input class="t-input" id="signup-password" type="password" placeholder="Crie uma senha segura" autocomplete="new-password">
       </div>
       <div class="settings-grid" style="margin-bottom:14px">
         <div class="t-field" style="margin:0">
           <label>CRP</label>
-          <input class="t-input" id="signup-crp" type="text" placeholder="06/123456">
+          <input class="t-input" id="signup-crp" type="text" placeholder="Ex: 06/123456">
         </div>
         <div class="t-field" style="margin:0">
           <label>Consultório / Clínica</label>
-          <input class="t-input" id="signup-clinic" type="text" placeholder="Nome do consultório">
+          <input class="t-input" id="signup-clinic" type="text" placeholder="Ex: Clínica Mente Sã">
         </div>
       </div>
       <button class="t-btn t-btn-primary t-btn-full" id="btn-signup" onclick="Therapist.signUp()">Criar conta</button>
@@ -99,7 +99,7 @@
   <div class="invite-result" id="invite-result">
     🔗 Link de convite gerado:<br>
     <strong id="invite-url-display" style="font-size:0.82rem"></strong><br><br>
-    <button class="t-btn t-btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('invite-url-display').textContent).then(()=>Therapist.showToast&&Therapist.showToast('Copiado!'))">📋 Copiar link</button>
+    <button class="t-btn t-btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('invite-url-display').textContent).then(()=>Therapist.showToast('🔗 Link copiado!'))">📋 Copiar link</button>
   </div>
 
   <div id="patients-list">
@@ -128,16 +128,16 @@
     <div class="settings-grid">
       <div class="t-field">
         <label>Nome completo</label>
-        <input class="t-input" id="s-full-name" type="text">
+        <input class="t-input" id="s-full-name" type="text" placeholder="Seu nome completo">
       </div>
       <div class="t-field">
         <label>CRP</label>
-        <input class="t-input" id="s-crp" type="text" placeholder="06/123456">
+        <input class="t-input" id="s-crp" type="text" placeholder="Ex: 06/123456">
       </div>
     </div>
     <div class="t-field">
       <label>Consultório / Clínica</label>
-      <input class="t-input" id="s-clinic" type="text">
+      <input class="t-input" id="s-clinic" type="text" placeholder="Nome do seu consultório ou clínica">
     </div>
   </div>
 
@@ -145,7 +145,7 @@
     <div class="settings-card-title">📧 Relatórios</div>
     <div class="t-field">
       <label>E-mail para receber relatórios</label>
-      <input class="t-input" id="s-report-email" type="email" placeholder="seu@email.com">
+      <input class="t-input" id="s-report-email" type="email" placeholder="Digite o e-mail de destino">
       <p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px">Os relatórios dos pacientes serão enviados para este e-mail.</p>
     </div>
   </div>
@@ -181,18 +181,6 @@ function switchAuth(tab) {
   document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='signup'&&i===1)));
   document.getElementById('auth-login').classList.toggle('active', tab==='login');
   document.getElementById('auth-signup').classList.toggle('active', tab==='signup');
-}
-
-// Copiar link de convite no dashboard
-window.Therapist = window.Therapist || {};
-if (!Therapist.showToast) {
-  Therapist.showToast = function(msg) {
-    const t = document.getElementById('t-toast');
-    if (!t) return;
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2800);
-  };
 }
 </script>
 </body>

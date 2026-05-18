@@ -73,6 +73,8 @@ body {
   transition: border-color 0.2s;
 }
 .t-input:focus { border-color: var(--accent); }
+.t-input::placeholder { color: #a8b090; font-style: italic; opacity: 1; }
+[data-theme="dark"] .t-input::placeholder { color: #5a6650; }
 
 .t-msg { display: none; font-size: 0.85rem; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
 .t-msg-error { background: #fdecea; color: #b94040; }
