@@ -33,6 +33,14 @@ const DB = (() => {
     });
   }
 
+  function buildAppUrl(page, params = {}) {
+    const url = new URL(page, location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) url.searchParams.set(key, value);
+    });
+    return url.toString();
+  }
+
   // ─── SESSION DO PACIENTE ────────────────────────────────────────────────────
   const Patient = {
     save(data) { LS.set("rdp_patient_session", data); },
@@ -48,10 +56,12 @@ const DB = (() => {
     },
 
     async signUp({ email, password, fullName }) {
+      const pendingToken = Patient.getPendingInvite();
       const { data, error } = await client().auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: buildAppUrl("paciente.html", { convite: pendingToken }),
           data: {
             role: "patient",
             full_name: fullName || null,
@@ -215,6 +225,7 @@ const DB = (() => {
         email,
         password,
         options: {
+          emailRedirectTo: buildAppUrl("psicologo.html"),
           data: {
             role:        "therapist",
             full_name:   fullName,

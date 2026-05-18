@@ -1,15 +1,16 @@
--- RDP Pro — Migration 003: login do paciente e contratos em pt-BR
--- Executar no Supabase SQL Editor (produção e teste separadamente)
+-- RDP Pro - Migration 004: reparar RPCs de login do paciente
+-- Use esta migration se a 003 falhou com erro de schema/retorno de funcao
+-- ou se o app mostra PGRST202 para claim_patient_invite.
 
 alter table public.patients
   add column if not exists user_id uuid unique references auth.users(id) on delete set null;
 
 create index if not exists idx_patients_user_id on public.patients(user_id);
 
--- O convite continua existindo, mas passa a ser usado para vincular a conta.
--- A versao 001 tinha outro retorno; PostgreSQL exige drop antes de alterar
--- a assinatura retornada pela RPC.
 drop function if exists public.get_patient_by_token(text);
+drop function if exists public.claim_patient_invite(text, text);
+drop function if exists public.get_current_patient();
+drop function if exists public.update_current_patient_name(text);
 
 create function public.get_patient_by_token(p_token text)
 returns table (
@@ -46,7 +47,7 @@ begin
 end;
 $$;
 
-create or replace function public.claim_patient_invite(
+create function public.claim_patient_invite(
   p_token text,
   p_full_name text default null
 )
@@ -71,7 +72,7 @@ declare
   v_patient public.patients%rowtype;
 begin
   if v_uid is null then
-    raise exception 'Paciente não autenticado';
+    raise exception 'Paciente nao autenticado';
   end if;
 
   select *
@@ -82,11 +83,11 @@ begin
     for update;
 
   if not found then
-    raise exception 'Convite inválido ou expirado';
+    raise exception 'Convite invalido ou expirado';
   end if;
 
   if v_patient.user_id is not null and v_patient.user_id <> v_uid then
-    raise exception 'Este convite já está vinculado a outra conta';
+    raise exception 'Este convite ja esta vinculado a outra conta';
   end if;
 
   update public.patients
@@ -113,7 +114,7 @@ begin
 end;
 $$;
 
-create or replace function public.get_current_patient()
+create function public.get_current_patient()
 returns table (
   patient_id     uuid,
   therapist_id   uuid,
@@ -149,7 +150,7 @@ begin
 end;
 $$;
 
-create or replace function public.update_current_patient_name(p_full_name text)
+create function public.update_current_patient_name(p_full_name text)
 returns void
 language plpgsql
 security definer
@@ -157,7 +158,7 @@ set search_path = public
 as $$
 begin
   if auth.uid() is null then
-    raise exception 'Paciente não autenticado';
+    raise exception 'Paciente nao autenticado';
   end if;
 
   update public.patients
@@ -168,10 +169,11 @@ begin
 end;
 $$;
 
-revoke all on function public.claim_patient_invite(text, text) from public;
 revoke all on function public.get_patient_by_token(text) from public;
+revoke all on function public.claim_patient_invite(text, text) from public;
 revoke all on function public.get_current_patient() from public;
 revoke all on function public.update_current_patient_name(text) from public;
+
 grant execute on function public.get_patient_by_token(text) to anon;
 grant execute on function public.get_patient_by_token(text) to authenticated;
 grant execute on function public.claim_patient_invite(text, text) to authenticated;

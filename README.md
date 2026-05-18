@@ -32,7 +32,8 @@ rdp-pro/
 1. Acesse o Supabase Dashboard.
 2. Abra o projeto de producao.
 3. No SQL Editor, execute as migrations em ordem: `001`, `002`, `003`.
-4. Repita no projeto de teste, se houver.
+4. Se o paciente receber erro `PGRST202` em `claim_patient_invite`, execute tambem a `004_repair_patient_auth_rpc.sql` no SQL Editor para recriar as RPCs e recarregar o schema do Supabase.
+5. Repita no projeto de teste, se houver.
 
 ### Edge Function
 
@@ -49,6 +50,20 @@ supabase functions deploy enviar-relatorio --project-ref ofojfewdeamfackofjgt
 ```
 
 O endpoint antigo `send-report` foi mantido apenas como compatibilidade.
+
+### Auth URLs
+
+No Supabase Auth, configure:
+
+```text
+Site URL: https://SEU_USUARIO.github.io/RDP-Pro/paciente.html
+Redirect URLs:
+https://SEU_USUARIO.github.io/RDP-Pro/paciente.html
+https://SEU_USUARIO.github.io/RDP-Pro/psicologo.html
+https://SEU_USUARIO.github.io/RDP-Pro/**
+```
+
+O app tambem envia `emailRedirectTo` no cadastro para reforcar as rotas pt-BR.
 
 ### GitHub Pages
 
