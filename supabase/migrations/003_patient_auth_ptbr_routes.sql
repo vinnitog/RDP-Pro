@@ -76,9 +76,9 @@ begin
 
   select *
     into v_patient
-    from public.patients
-    where invite_token = p_token
-      and active = true
+    from public.patients p
+    where p.invite_token = p_token
+      and p.active = true
     for update;
 
   if not found then
@@ -91,10 +91,10 @@ begin
 
   update public.patients
      set user_id = v_uid,
-         email = coalesce(email, v_email),
-         full_name = coalesce(nullif(p_full_name, ''), full_name, v_email),
+         email = coalesce(public.patients.email, v_email),
+         full_name = coalesce(nullif(p_full_name, ''), public.patients.full_name, v_email),
          last_seen_at = now()
-   where id = v_patient.id;
+   where public.patients.id = v_patient.id;
 
   return query
     select

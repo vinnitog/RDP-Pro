@@ -33,7 +33,8 @@ rdp-pro/
 2. Abra o projeto de producao.
 3. No SQL Editor, execute as migrations em ordem: `001`, `002`, `003`.
 4. Se o paciente receber erro `PGRST202` em `claim_patient_invite`, execute tambem a `004_repair_patient_auth_rpc.sql` no SQL Editor para recriar as RPCs e recarregar o schema do Supabase.
-5. Repita no projeto de teste, se houver.
+5. Se, depois disso, aparecer `column reference "invite_token" is ambiguous`, execute a `005_fix_claim_patient_invite_ambiguity.sql`.
+6. Repita no projeto de teste, se houver.
 
 ### Edge Function
 
@@ -107,3 +108,15 @@ https://SEU_USUARIO.github.io/rdp-pro/psicologo.html
 ## Service Worker
 
 A cada deploy com mudancas em HTML/CSS/JS, incremente `CACHE_NAME` em `sw.js`.
+
+## Testes
+
+```bash
+npm test
+```
+
+No Windows PowerShell, se `npm` for bloqueado pela policy local, use:
+
+```bash
+npm.cmd test
+```
