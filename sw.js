@@ -3,7 +3,7 @@
 // cache-first para assets estáticos (ícones, manifest).
 // Incrementar CACHE_NAME a cada deploy.
 
-const CACHE_NAME = 'rdp-pro-v1.8';
+const CACHE_NAME = 'rdp-pro-v1.9';
 
 const STATIC_ASSETS = [
   './manifest.json',
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
 
 const NETWORK_FIRST = [
   './index.html',
+  './paciente.html',
   './',
   './css/app.css',
   './css/therapist.css',
@@ -20,6 +21,7 @@ const NETWORK_FIRST = [
   './js/db.js',
   './js/app.js',
   './js/therapist.js',
+  './psicologo.html',
   './therapist.html',
 ];
 
@@ -74,7 +76,9 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(e.request).then(cached => {
         if (cached) return cached;
-        if (e.request.mode === 'navigate') return caches.match('./index.html');
+        if (e.request.mode === 'navigate') {
+          return caches.match('./paciente.html').then(page => page || caches.match('./index.html'));
+        }
       }))
   );
 });

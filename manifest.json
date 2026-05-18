@@ -2,7 +2,7 @@
   "name": "RDP Pro",
   "short_name": "RDP Pro",
   "description": "Registro de Pensamentos — Terapia Cognitivo-Comportamental",
-  "start_url": "./index.html",
+  "start_url": "./paciente.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#4a5535",

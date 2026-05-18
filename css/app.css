@@ -190,6 +190,46 @@ body {
 .ob-step-text { font-size: 0.92rem; color: var(--text-muted); line-height: 1.55; }
 .ob-step-text strong { color: var(--text); font-weight: 500; }
 
+.patient-auth-grid {
+  display: grid;
+  gap: 16px;
+  text-align: left;
+}
+
+.patient-auth-block {
+  border-top: 1px solid var(--border-soft);
+  padding-top: 16px;
+}
+
+.patient-auth-block h3 {
+  font-family: 'Lora', serif;
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.patient-auth-message {
+  display: none;
+  margin-top: 16px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.patient-auth-message.error {
+  background: #fdecea;
+  border: 1px solid #f5c4c4;
+  color: #b03030;
+}
+
+.patient-auth-message.success {
+  background: var(--accent-light);
+  border: 1px solid var(--border-soft);
+  color: var(--accent);
+}
+
 /* ─── HEADER ─────────────────────────────────────────────────────────────── */
 /* [clínico] Gradiente sutil — entrada menos abrupta que flat color */
 header {
@@ -237,13 +277,39 @@ header {
 }
 .theme-btn:active { background: rgba(255,255,255,0.12); }
 
+.header-right {
+  width: 58px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
 #patient-name-header {
-  width: 44px;
   text-align: right;
   font-size: 0.75rem;
   color: #b8cba0;
   padding-right: 4px;
   line-height: 1.3;
+  max-width: 58px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  border: none;
+  background: transparent;
+  color: #dbe8c9;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.12);
 }
 
 /* ─── TABS ───────────────────────────────────────────────────────────────── */

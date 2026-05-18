@@ -38,6 +38,41 @@ const DB = (() => {
     save(data) { LS.set("rdp_patient_session", data); },
     get() { return LS.get("rdp_patient_session"); },
     clear() { LS.rm("rdp_patient_session"); },
+    savePendingInvite(token) { LS.set("rdp_pending_invite_token", token); },
+    getPendingInvite() { return LS.get("rdp_pending_invite_token"); },
+    clearPendingInvite() { LS.rm("rdp_pending_invite_token"); },
+
+    async getAuthSession() {
+      const { data } = await client().auth.getSession();
+      return data.session;
+    },
+
+    async signUp({ email, password, fullName }) {
+      const { data, error } = await client().auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role: "patient",
+            full_name: fullName || null,
+          },
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+
+    async signIn({ email, password }) {
+      const { data, error } = await client().auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      return data;
+    },
+
+    async signOut() {
+      await client().auth.signOut();
+      Patient.clear();
+      Patient.clearPendingInvite();
+    },
 
     async resolveToken(token) {
       const cached = Patient.get();
@@ -52,6 +87,42 @@ const DB = (() => {
       const session = { ...data, invite_token: token };
       Patient.save(session);
       return session;
+    },
+
+    async claimInvite(token, fullName = null) {
+      const { data, error } = await client()
+        .rpc("claim_patient_invite", { p_token: token, p_full_name: fullName })
+        .single();
+
+      if (error || !data) throw new Error(error?.message || "Convite inválido");
+
+      const session = { ...data, invite_token: token };
+      Patient.save(session);
+      Patient.clearPendingInvite();
+      return session;
+    },
+
+    async resolveAuthSession() {
+      const session = await Patient.getAuthSession();
+      if (!session) return null;
+
+      const { data, error } = await client()
+        .rpc("get_current_patient")
+        .single();
+
+      if (error || !data) return null;
+
+      Patient.save(data);
+      return data;
+    },
+
+    async updateName(name) {
+      const session = await Patient.getAuthSession();
+      if (!session) return;
+
+      const { error } = await client()
+        .rpc("update_current_patient_name", { p_full_name: name });
+      if (error) throw error;
     },
   };
 
@@ -145,6 +216,7 @@ const DB = (() => {
         password,
         options: {
           data: {
+            role:        "therapist",
             full_name:   fullName,
             crp:         crp || null,
             clinic_name: clinicName || null,
@@ -173,6 +245,7 @@ const DB = (() => {
     async getProfile() {
       const session = await Auth.getSession();
       if (!session) return null;
+      if (session.user.user_metadata?.role === "patient") return null;
 
       const { data: rows, error: fetchError } = await client()
         .from("therapists")
@@ -274,9 +347,7 @@ const DB = (() => {
       const session = Patient.get();
       if (!session) throw new Error("Sessão não encontrada");
 
-      const res = await fetch(
-        `${window.RDP_CONFIG.supabase.url}/functions/v1/send-report`,
-        {
+      const request = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -291,8 +362,19 @@ const DB = (() => {
             // A Edge Function usa isso para formatar o timestamp corretamente
             timezone_offset:   new Date().getTimezoneOffset(),
           }),
-        }
+        };
+
+      let res = await fetch(
+        `${window.RDP_CONFIG.supabase.url}/functions/v1/enviar-relatorio`,
+        request
       );
+
+      if (res.status === 404) {
+        res = await fetch(
+          `${window.RDP_CONFIG.supabase.url}/functions/v1/send-report`,
+          request
+        );
+      }
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Falha no envio");

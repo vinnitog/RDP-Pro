@@ -7,18 +7,32 @@ const App = (() => {
     records:  [],
     editingId: null,
     maxDays:  10,
+    pendingInviteToken: null,
   };
 
   // ─── INIT ──────────────────────────────────────────────────────────────────
   async function init() {
-    // Verifica token na URL (?token=xxx) ou sessão salva
-    const urlToken = new URLSearchParams(location.search).get("token");
+    const params = new URLSearchParams(location.search);
+    const urlToken = params.get("convite") || params.get("token");
 
     try {
       if (urlToken) {
+        state.pendingInviteToken = urlToken;
+        DB.Patient.savePendingInvite(urlToken);
         state.session = await DB.Patient.resolveToken(urlToken);
         // Remove token da URL sem reload
         history.replaceState({}, "", location.pathname);
+      }
+
+      const authSession = await DB.Patient.getAuthSession();
+      const pendingToken = state.pendingInviteToken || DB.Patient.getPendingInvite();
+      if (authSession && pendingToken) {
+        state.session = await DB.Patient.claimInvite(
+          pendingToken,
+          state.session?.patient_name || null
+        );
+      } else if (authSession) {
+        state.session = await DB.Patient.resolveAuthSession();
       } else {
         state.session = DB.Patient.get();
       }
@@ -28,7 +42,14 @@ const App = (() => {
     }
 
     if (!state.session) {
-      showScreen("screen-no-session");
+      showScreen("screen-patient-auth");
+      renderPatientAuth();
+      return;
+    }
+
+    if (!await DB.Patient.getAuthSession()) {
+      showScreen("screen-patient-auth");
+      renderPatientAuth();
       return;
     }
 
@@ -60,6 +81,118 @@ const App = (() => {
     if (el) el.classList.add("active");
   }
 
+  function renderPatientAuth() {
+    const hasInvite = Boolean(state.pendingInviteToken || DB.Patient.getPendingInvite() || state.session?.invite_token);
+    const title = document.getElementById("patient-auth-title");
+    const copy = document.getElementById("patient-auth-copy");
+    const inviteNote = document.getElementById("patient-auth-invite-note");
+
+    if (title) title.textContent = hasInvite ? "Crie seu acesso" : "Entre na sua conta";
+    if (copy) {
+      copy.textContent = hasInvite
+        ? "Seu convite foi validado. Agora crie uma conta ou entre para vincular este acesso ao seu e-mail."
+        : "Use o e-mail e a senha cadastrados para acessar seus registros.";
+    }
+    if (inviteNote) inviteNote.style.display = hasInvite ? "block" : "none";
+  }
+
+  async function completePatientAuth() {
+    const pendingToken =
+      state.pendingInviteToken ||
+      DB.Patient.getPendingInvite() ||
+      state.session?.invite_token;
+
+    if (pendingToken) {
+      state.session = await DB.Patient.claimInvite(
+        pendingToken,
+        state.session?.patient_name || document.getElementById("patient-signup-name")?.value.trim() || null
+      );
+    } else {
+      state.session = await DB.Patient.resolveAuthSession();
+    }
+
+    if (!state.session) {
+      throw new Error("Esta conta ainda não está vinculada a um convite.");
+    }
+
+    if (!state.session.patient_name) {
+      showScreen("screen-onboarding");
+      renderOnboarding();
+      return;
+    }
+
+    bootApp();
+  }
+
+  async function submitPatientLogin() {
+    const email = document.getElementById("patient-login-email")?.value.trim();
+    const password = document.getElementById("patient-login-password")?.value;
+
+    if (!email || !password) {
+      showPatientAuthMessage("Preencha e-mail e senha");
+      return;
+    }
+
+    setPatientAuthLoading("btn-patient-login", true);
+    try {
+      await DB.Patient.signIn({ email, password });
+      await completePatientAuth();
+    } catch (e) {
+      showPatientAuthMessage(e.message || "Não foi possível entrar");
+    } finally {
+      setPatientAuthLoading("btn-patient-login", false);
+    }
+  }
+
+  async function submitPatientSignup() {
+    const fullName = document.getElementById("patient-signup-name")?.value.trim();
+    const email = document.getElementById("patient-signup-email")?.value.trim();
+    const password = document.getElementById("patient-signup-password")?.value;
+    const hasInvite = Boolean(state.pendingInviteToken || DB.Patient.getPendingInvite() || state.session?.invite_token);
+
+    if (!hasInvite) {
+      showPatientAuthMessage("Para criar sua conta, abra primeiro o convite enviado pelo seu psicólogo(a).");
+      return;
+    }
+    if (!fullName || !email || !password) {
+      showPatientAuthMessage("Nome, e-mail e senha são obrigatórios");
+      return;
+    }
+    if (password.length < 6) {
+      showPatientAuthMessage("Senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
+    setPatientAuthLoading("btn-patient-signup", true);
+    try {
+      const result = await DB.Patient.signUp({ email, password, fullName });
+      if (!result.session) {
+        showPatientAuthMessage("Conta criada. Confirme seu e-mail e depois volte para entrar.", "success");
+        return;
+      }
+      await completePatientAuth();
+    } catch (e) {
+      showPatientAuthMessage(e.message || "Não foi possível criar a conta");
+    } finally {
+      setPatientAuthLoading("btn-patient-signup", false);
+    }
+  }
+
+  function showPatientAuthMessage(msg, type = "error") {
+    const el = document.getElementById("patient-auth-message");
+    if (!el) return;
+    el.textContent = msg;
+    el.className = `patient-auth-message ${type}`;
+    el.style.display = "block";
+  }
+
+  function setPatientAuthLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.classList.toggle("btn-loading", loading);
+  }
+
   // ─── ONBOARDING ───────────────────────────────────────────────────────────
   function renderOnboarding() {
     const therapistName = state.session?.therapist_name || "seu psicólogo(a)";
@@ -76,15 +209,20 @@ const App = (() => {
     state.session.patient_name = name;
     DB.Patient.save(state.session);
 
-    // Atualiza nome no Supabase
+    // Atualiza nome no Supabase pela conta vinculada do paciente.
     try {
-      await DB.client()
-        .from("patients")
-        .update({ full_name: name, last_seen_at: new Date().toISOString() })
-        .eq("id", state.session.patient_id);
+      await DB.Patient.updateName(name);
     } catch {}
 
     bootApp();
+  }
+
+  async function signOut() {
+    await DB.Patient.signOut();
+    state.session = null;
+    state.records = [];
+    showScreen("screen-patient-auth");
+    renderPatientAuth();
   }
 
   // ─── RENDERIZAÇÃO PRINCIPAL ───────────────────────────────────────────────
@@ -121,13 +259,13 @@ const App = (() => {
     document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
     document.getElementById("page-" + name).classList.add("active");
     if (el) el.classList.add("active");
-    if (name === "history") renderHistory();
-    if (name === "form")    applyLockUI();
+    if (name === "historico") renderHistory();
+    if (name === "formulario") applyLockUI();
     if (name === "insights") renderInsights();
   }
 
   function goHistory() {
-    showTab("history", document.querySelectorAll(".tab")[1]);
+    showTab("historico", document.querySelectorAll(".tab")[1]);
   }
 
   // ─── LOCK ─────────────────────────────────────────────────────────────────
@@ -466,7 +604,7 @@ const App = (() => {
 
     if (!records.length) {
       // [UI] empty state com CTA — direciona o usuário para a ação
-      html += `<div class="history-empty"><div class="icon">📖</div><p>Nenhum registro ainda.<br>Preencha o formulário!</p><button class="empty-cta" onclick="App.showTab('form', document.querySelectorAll('.tab')[0])">📝 Fazer primeiro registro</button></div>`;
+      html += `<div class="history-empty"><div class="icon">📖</div><p>Nenhum registro ainda.<br>Preencha o formulário!</p><button class="empty-cta" onclick="App.showTab('formulario', document.querySelectorAll('.tab')[0])">📝 Fazer primeiro registro</button></div>`;
     } else {
       html += `<div class="days-counter">📅 <span>${dias}</span> dia${dias !== 1 ? "s" : ""} de ${state.maxDays}</div>`;
       html += records.map((r) => {
@@ -627,7 +765,7 @@ const App = (() => {
     setSlider("f-anxiety1", "anx1-val", r.anxiety1 || 0);
     setSlider("f-anxiety2", "anx2-val", r.anxiety2 || 0);
 
-    showTab("form", document.querySelectorAll(".tab")[0]);
+    showTab("formulario", document.querySelectorAll(".tab")[0]);
     state.editingId = r.id;
     const btn = document.getElementById("btn-save");
     if (btn) btn.textContent = "💾 Atualizar Registro";
@@ -657,10 +795,11 @@ const App = (() => {
   }
 
   // ─── PAINEL DO PSICÓLOGO (separado) ──────────────────────────────────────
-  // Acessível em /therapist.html
+  // Acessível em /psicologo.html
 
   return {
-    init, submitOnboarding, toggleTheme, showTab, goHistory,
+    init, submitOnboarding, submitPatientLogin, submitPatientSignup, signOut,
+    toggleTheme, showTab, goHistory,
     setNow, autoResize, updateCount, clearForm, saveRecord,
     sendReport, exportPDF, confirmClear,
     toggleItem, loadRecord, deleteRecord, showToast,

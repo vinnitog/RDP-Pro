@@ -3,10 +3,17 @@
 const Therapist = (() => {
   let profile = null;
 
+  function buildPatientInviteUrl(token) {
+    const url = new URL("paciente.html", location.href);
+    url.search = "";
+    url.searchParams.set("convite", token);
+    return url.toString();
+  }
+
   async function init() {
     const session = await DB.Auth.getSession();
     if (!session) {
-      showView("view-auth");
+      showView("view-autenticacao");
       // [UX] Enter para submeter nos campos de login
       _bindAuthEnter();
       return;
@@ -26,7 +33,7 @@ const Therapist = (() => {
 
   DB.Auth.onAuthChange(async (event) => {
     if (event === "SIGNED_IN") await loadDashboard();
-    if (event === "SIGNED_OUT") showView("view-auth");
+    if (event === "SIGNED_OUT") showView("view-autenticacao");
   });
 
   // ─── VIEWS ───────────────────────────────────────────────────────────────
@@ -81,15 +88,15 @@ const Therapist = (() => {
 
   async function signOut() {
     await DB.Auth.signOut();
-    showView("view-auth");
+    showView("view-autenticacao");
   }
 
   // ─── DASHBOARD ───────────────────────────────────────────────────────────
   async function loadDashboard() {
     profile = await DB.Auth.getProfile();
-    if (!profile) { showView("view-auth"); return; }
+    if (!profile) { showView("view-autenticacao"); return; }
 
-    showView("view-dashboard");
+    showView("view-painel");
     renderProfile();
     await renderPatients();
   }
@@ -146,7 +153,7 @@ const Therapist = (() => {
       const lastSeen = p.last_seen_at
         ? new Date(p.last_seen_at).toLocaleDateString("pt-BR")
         : "Nunca acessou";
-      const inviteUrl = `${location.origin}/index.html?token=${p.invite_token}`;
+      const inviteUrl = buildPatientInviteUrl(p.invite_token);
 
       return `<div class="patient-card ${!p.active ? "inactive" : ""}">
         <div class="patient-info">
@@ -174,7 +181,7 @@ const Therapist = (() => {
     setLoading("btn-create-patient", true);
     try {
       const patient = await DB.Therapist.createPatient(name || null);
-      const inviteUrl = `${location.origin}/index.html?token=${patient.invite_token}`;
+      const inviteUrl = buildPatientInviteUrl(patient.invite_token);
       document.getElementById("new-patient-name").value = "";
       document.getElementById("invite-url-display").textContent = inviteUrl;
       document.getElementById("invite-result").style.display = "block";
@@ -202,7 +209,7 @@ const Therapist = (() => {
 
   // ─── VER REGISTROS ────────────────────────────────────────────────────────
   async function viewRecords(patientId, patientName) {
-    showView("view-patient-records");
+    showView("view-registros-paciente");
     document.getElementById("pr-patient-name").textContent = patientName;
     document.getElementById("pr-records-area").innerHTML =
       '<div class="t-loading">Carregando...</div>';
@@ -230,7 +237,7 @@ const Therapist = (() => {
 
   // ─── SETTINGS ────────────────────────────────────────────────────────────
   function showSettings() {
-    showView("view-settings");
+    showView("view-configuracoes");
     if (!profile) return;
     document.getElementById("s-full-name").value  = profile.full_name || "";
     document.getElementById("s-crp").value        = profile.crp || "";
@@ -263,7 +270,7 @@ const Therapist = (() => {
       profile = await DB.Auth.getProfile();
       renderProfile();
       showToast("✅ Configurações salvas!");
-      showView("view-dashboard");
+      showView("view-painel");
     } catch (e) {
       showToast("Erro: " + e.message);
     } finally {
