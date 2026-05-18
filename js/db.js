@@ -41,6 +41,15 @@ const DB = (() => {
     return url.toString();
   }
 
+  function throwSupabaseError(error, fallback) {
+    if (!error) throw new Error(fallback);
+    const err = new Error(error.message || fallback);
+    err.code = error.code;
+    err.details = error.details;
+    err.hint = error.hint;
+    throw err;
+  }
+
   // ─── SESSION DO PACIENTE ────────────────────────────────────────────────────
   const Patient = {
     save(data) { LS.set("rdp_patient_session", data); },
@@ -92,7 +101,8 @@ const DB = (() => {
         .rpc("get_patient_by_token", { p_token: token })
         .single();
 
-      if (error || !data) throw new Error("Token inválido ou expirado");
+      if (error) throwSupabaseError(error, "Token inválido ou expirado");
+      if (!data) throw new Error("Token inválido ou expirado");
 
       const session = { ...data, invite_token: token };
       Patient.save(session);
@@ -104,7 +114,8 @@ const DB = (() => {
         .rpc("claim_patient_invite", { p_token: token, p_full_name: fullName })
         .single();
 
-      if (error || !data) throw new Error(error?.message || "Convite inválido");
+      if (error) throwSupabaseError(error, "Convite inválido");
+      if (!data) throw new Error("Convite inválido");
 
       const session = { ...data, invite_token: token };
       Patient.save(session);

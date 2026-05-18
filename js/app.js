@@ -37,7 +37,7 @@ const App = (() => {
         state.session = DB.Patient.get();
       }
     } catch (e) {
-      showScreen("screen-invalid-token");
+      showPatientStartupError(e);
       return;
     }
 
@@ -79,6 +79,35 @@ const App = (() => {
     document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
     const el = document.getElementById(id);
     if (el) el.classList.add("active");
+  }
+
+  function isBackendSetupError(e) {
+    const msg = `${e?.code || ""} ${e?.message || ""} ${e?.details || ""}`;
+    return msg.includes("PGRST202")
+      || msg.includes("schema cache")
+      || msg.includes("claim_patient_invite");
+  }
+
+  function showInvalidToken(title, copy) {
+    const titleEl = document.getElementById("invalid-token-title");
+    const copyEl = document.getElementById("invalid-token-copy");
+    if (titleEl) titleEl.textContent = title;
+    if (copyEl) copyEl.innerHTML = copy;
+    showScreen("screen-invalid-token");
+  }
+
+  function showPatientStartupError(e) {
+    if (isBackendSetupError(e)) {
+      showInvalidToken(
+        "Configuração pendente",
+        "Sua conta foi confirmada, mas o convite ainda não pôde ser vinculado.<br>Tente abrir este link novamente após a atualização do sistema."
+      );
+      return;
+    }
+    showInvalidToken(
+      "Link inválido",
+      "Este link de convite não é válido ou já expirou.<br>Solicite um novo link ao seu psicólogo(a)."
+    );
   }
 
   function renderPatientAuth() {
@@ -138,7 +167,11 @@ const App = (() => {
       await DB.Patient.signIn({ email, password });
       await completePatientAuth();
     } catch (e) {
-      showPatientAuthMessage(e.message || "Não foi possível entrar");
+      showPatientAuthMessage(
+        isBackendSetupError(e)
+          ? "Conta confirmada, mas o convite ainda não pôde ser vinculado. Tente novamente após a atualização do sistema."
+          : e.message || "Não foi possível entrar"
+      );
     } finally {
       setPatientAuthLoading("btn-patient-login", false);
     }
@@ -172,7 +205,11 @@ const App = (() => {
       }
       await completePatientAuth();
     } catch (e) {
-      showPatientAuthMessage(e.message || "Não foi possível criar a conta");
+      showPatientAuthMessage(
+        isBackendSetupError(e)
+          ? "Conta criada, mas o convite ainda não pôde ser vinculado. Tente entrar novamente após a atualização do sistema."
+          : e.message || "Não foi possível criar a conta"
+      );
     } finally {
       setPatientAuthLoading("btn-patient-signup", false);
     }

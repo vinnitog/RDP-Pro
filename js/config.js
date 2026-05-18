@@ -11,7 +11,7 @@ const CONFIG = {
   // E-mail de teste (substitui o do psicólogo em modo dev)
   devEmail: IS_DEV ? "vinnitog@gmail.com" : null,
   isDev: IS_DEV,
-  appVersion: "1.1.1",
+  appVersion: "1.1.2",
   maxCycleDays: 10, // padrão, sobrescrito pelas settings do psicólogo
 };
 
