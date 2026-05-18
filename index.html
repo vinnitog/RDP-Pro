@@ -107,6 +107,10 @@
     </div>
     <div id="form-content">
       <div class="form-area">
+
+        <!-- ── FASE 1: O QUE ACONTECEU ─────────────────────────────────── -->
+        <div class="form-phase-label"><span>O que aconteceu</span></div>
+
         <div class="field-card">
           <label>📅 Data / Hora</label>
           <div class="datetime-row">
@@ -133,34 +137,37 @@
             <input type="range" min="0" max="10" value="0" id="f-anxiety1" oninput="document.getElementById('anx1-val').textContent=this.value">
             <span class="slider-val" id="anx1-val">0</span>
           </div>
-          <!-- [UI] Labels semânticos: dão contexto ao valor numérico -->
           <div class="slider-labels">
             <span>0 — calmo</span>
             <span>5 — moderado</span>
             <span>10 — pânico</span>
           </div>
         </div>
-        <div class="field-card">
+
+        <!-- ── FASE 2: REFLEXÃO ────────────────────────────────────────── -->
+        <div class="form-phase-label"><span>Reflexão</span></div>
+
+        <div class="field-card field-card--reflection">
           <label>⚡ Reação / Comportamento <span class="char-count" id="cc-reaction"></span></label>
           <textarea id="f-reaction" placeholder="como você reagiu, o que fez..." oninput="App.autoResize(this);App.updateCount('f-reaction','cc-reaction')"></textarea>
         </div>
-        <div class="field-card">
+        <div class="field-card field-card--reflection">
           <label>🌱 Pensamento Alternativo <span class="char-count" id="cc-alt"></span></label>
           <textarea id="f-alt-thought" placeholder="uma forma mais equilibrada de ver a situação..." oninput="App.autoResize(this);App.updateCount('f-alt-thought','cc-alt')"></textarea>
         </div>
-        <div class="field-card">
+        <div class="field-card field-card--reflection">
           <label>📊 Grau de Ansiedade Final (0–10)</label>
           <div class="slider-row">
             <input type="range" min="0" max="10" value="0" id="f-anxiety2" oninput="document.getElementById('anx2-val').textContent=this.value">
             <span class="slider-val" id="anx2-val">0</span>
           </div>
-          <!-- [UI] Labels semânticos: consistência com slider inicial -->
           <div class="slider-labels">
             <span>0 — calmo</span>
             <span>5 — moderado</span>
             <span>10 — pânico</span>
           </div>
         </div>
+
       </div>
       <div class="form-actions">
         <button class="btn-clear" onclick="App.clearForm()">🗑️ Limpar</button>
