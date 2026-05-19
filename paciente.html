@@ -11,7 +11,7 @@
 <title>RDP Pro — Registro de Pensamentos</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -20,7 +20,7 @@
 <div class="screen" id="screen-patient-auth">
   <div class="screen-center">
     <div class="screen-card">
-      <div class="logo">🧠</div>
+      <svg class="logo-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3a4 4 0 0 0-4 4v1a4 4 0 0 0 0 8v1a4 4 0 0 0 7 2.65A4 4 0 0 0 19 17v-1a4 4 0 0 0 0-8V7a4 4 0 0 0-7-2.65A3.99 3.99 0 0 0 9 3Z"/><path d="M12 4v16"/></svg>
       <h2 id="patient-auth-title">Entre na sua conta</h2>
       <p id="patient-auth-copy">Use o e-mail e a senha cadastrados para acessar seus registros.</p>
 
@@ -55,7 +55,7 @@
 <div class="screen" id="screen-onboarding">
   <div class="screen-center">
     <div class="screen-card">
-      <div class="logo">🧠</div>
+      <svg class="logo-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3a4 4 0 0 0-4 4v1a4 4 0 0 0 0 8v1a4 4 0 0 0 7 2.65A4 4 0 0 0 19 17v-1a4 4 0 0 0 0-8V7a4 4 0 0 0-7-2.65A3.99 3.99 0 0 0 9 3Z"/><path d="M12 4v16"/></svg>
       <h2>Bem-vindo(a) ao RDP Pro</h2>
       <p>Seu psicólogo(a) te convidou para usar este app de Registro de Pensamentos (TCC).</p>
 
@@ -66,19 +66,19 @@
 
       <div style="text-align:left;margin-bottom:20px">
         <div class="ob-step">
-          <span class="ob-step-icon">📝</span>
+          <span class="ob-step-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
           <div class="ob-step-text"><strong>Registre</strong> seus pensamentos automáticos e sentimentos</div>
         </div>
         <div class="ob-step">
-          <span class="ob-step-icon">🌱</span>
+          <span class="ob-step-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V12"/><path d="M12 12C7 12 4 9 4 4c5 0 8 3 8 8Z"/><path d="M12 14c5 0 8-3 8-8-5 0-8 3-8 8Z"/></svg></span>
           <div class="ob-step-text"><strong>Reflita</strong> e encontre pensamentos alternativos mais equilibrados</div>
         </div>
         <div class="ob-step">
-          <span class="ob-step-icon">📧</span>
+          <span class="ob-step-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
           <div class="ob-step-text"><strong>Envie</strong> o relatório direto para seu psicólogo(a) antes da sessão</div>
         </div>
         <div class="ob-step">
-          <span class="ob-step-icon">🔒</span>
+          <span class="ob-step-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
           <div class="ob-step-text"><strong>Privacidade:</strong> seus dados ficam <strong>apenas no seu dispositivo</strong></div>
         </div>
       </div>
@@ -93,7 +93,7 @@
 <div class="screen" id="screen-invalid-token">
   <div class="screen-center">
     <div class="screen-card">
-      <div class="logo">🔒</div>
+      <svg class="logo-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
       <h2 id="invalid-token-title">Link inválido</h2>
       <p id="invalid-token-copy">Este link de convite não é válido ou já expirou.<br>Solicite um novo link ao seu psicólogo(a).</p>
     </div>
@@ -104,7 +104,7 @@
 <div class="screen" id="screen-no-session">
   <div class="screen-center">
     <div class="screen-card">
-      <div class="logo">🧠</div>
+      <svg class="logo-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3a4 4 0 0 0-4 4v1a4 4 0 0 0 0 8v1a4 4 0 0 0 7 2.65A4 4 0 0 0 19 17v-1a4 4 0 0 0 0-8V7a4 4 0 0 0-7-2.65A3.99 3.99 0 0 0 9 3Z"/><path d="M12 4v16"/></svg>
       <h2>RDP Pro</h2>
       <p>Para usar este app, você precisa do link de convite do seu psicólogo(a).</p>
       <p style="margin-top:12px;font-size:0.82rem;color:#aaa">Se você já usou o app antes e perdeu o acesso, abra o link de convite novamente.</p>
@@ -117,10 +117,10 @@
 
   <header>
     <div class="header-left">
-      <button class="theme-btn" onclick="App.toggleTheme()" id="theme-btn" title="Alternar tema">🌙</button>
+      <button class="theme-btn" onclick="App.toggleTheme()" id="theme-btn" title="Alternar tema"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a7 7 0 1 0 11 11Z"/></svg></button>
     </div>
     <div class="header-title">
-      <h1>🧠 Registro de Pensamentos</h1>
+      <h1><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3a4 4 0 0 0-4 4v1a4 4 0 0 0 0 8v1a4 4 0 0 0 7 2.65A4 4 0 0 0 19 17v-1a4 4 0 0 0 0-8V7a4 4 0 0 0-7-2.65A3.99 3.99 0 0 0 9 3Z"/><path d="M12 4v16"/></svg> Registro de Pensamentos</span></h1>
       <p id="therapist-name-header">RDP Pro</p>
     </div>
     <div class="header-right">
@@ -130,18 +130,18 @@
   </header>
 
   <div class="tabs">
-    <div class="tab active" onclick="App.showTab('formulario',this)">📝 Formulário</div>
-    <div class="tab" onclick="App.showTab('historico',this)">📋 Histórico</div>
-    <div class="tab" onclick="App.showTab('insights',this)">📈 Insights</div>
-    <div class="tab" onclick="App.showTab('privacidade',this)">🔒 Privacidade</div>
+    <div class="tab active" onclick="App.showTab('formulario',this)"><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Formulário</span></div>
+    <div class="tab" onclick="App.showTab('historico',this)"><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> Histórico</span></div>
+    <div class="tab" onclick="App.showTab('insights',this)"><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg> Insights</span></div>
+    <div class="tab" onclick="App.showTab('privacidade',this)"><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Privacidade</span></div>
   </div>
 
   <!-- FORMULÁRIO -->
   <div class="page active" id="page-formulario">
     <div id="form-locked" class="locked-banner" style="display:none">
-      <h3>🔒 Limite de dias atingido</h3>
+      <h3>Limite de dias atingido</h3>
       <p>Você não pode salvar novos registros até enviar o histórico e limpar o ciclo.</p>
-      <button class="btn-go-history" onclick="App.goHistory()">📋 Ir para o Histórico</button>
+      <button class="btn-go-history" onclick="App.goHistory()">Ir para o Histórico</button>
     </div>
     <div id="form-content">
       <div class="form-area">
@@ -150,7 +150,7 @@
         <div class="form-phase-label"><span>O que aconteceu</span></div>
 
         <div class="field-card">
-          <label>📅 Data / Hora</label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg> Data / Hora</span></label>
           <div class="datetime-row">
             <input type="date" id="f-date">
             <input type="time" id="f-time">
@@ -158,19 +158,19 @@
           </div>
         </div>
         <div class="field-card">
-          <label>📍 Situação <span class="char-count" id="cc-situation"></span></label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11Z"/><circle cx="12" cy="10" r="2"/></svg> Situação</span> <span class="char-count" id="cc-situation"></span></label>
           <textarea id="f-situation" placeholder="onde você estava, o que aconteceu, com quem..." oninput="App.autoResize(this);App.updateCount('f-situation','cc-situation')"></textarea>
         </div>
         <div class="field-card">
-          <label>💭 Pensamento Automático <span class="char-count" id="cc-thought"></span></label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/></svg> Pensamento Automático</span> <span class="char-count" id="cc-thought"></span></label>
           <textarea id="f-thought" placeholder="o que passou pela sua cabeça naquele momento..." oninput="App.autoResize(this);App.updateCount('f-thought','cc-thought')"></textarea>
         </div>
         <div class="field-card">
-          <label>❤️ Sentimento <span class="char-count" id="cc-feeling"></span></label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg> Sentimento</span> <span class="char-count" id="cc-feeling"></span></label>
           <textarea id="f-feeling" placeholder="que emoção você sentiu — ansiedade, tristeza, raiva..." oninput="App.autoResize(this);App.updateCount('f-feeling','cc-feeling')"></textarea>
         </div>
         <div class="field-card">
-          <label>📊 Grau de Ansiedade Inicial (0–10)</label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="5"/><rect x="12" y="8" width="3" height="9"/><rect x="17" y="5" width="3" height="12"/></svg> Grau de Ansiedade Inicial (0–10)</span></label>
           <div class="slider-row">
             <input type="range" min="0" max="10" value="0" id="f-anxiety1" oninput="document.getElementById('anx1-val').textContent=this.value">
             <span class="slider-val" id="anx1-val">0</span>
@@ -186,15 +186,15 @@
         <div class="form-phase-label"><span>Reflexão</span></div>
 
         <div class="field-card field-card--reflection">
-          <label>⚡ Reação / Comportamento <span class="char-count" id="cc-reaction"></span></label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 13h8l-1 7 9-13h-8Z"/></svg> Reação / Comportamento</span> <span class="char-count" id="cc-reaction"></span></label>
           <textarea id="f-reaction" placeholder="como você reagiu, o que fez..." oninput="App.autoResize(this);App.updateCount('f-reaction','cc-reaction')"></textarea>
         </div>
         <div class="field-card field-card--reflection">
-          <label>🌱 Pensamento Alternativo <span class="char-count" id="cc-alt"></span></label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V12"/><path d="M12 12C7 12 4 9 4 4c5 0 8 3 8 8Z"/><path d="M12 14c5 0 8-3 8-8-5 0-8 3-8 8Z"/></svg> Pensamento Alternativo</span> <span class="char-count" id="cc-alt"></span></label>
           <textarea id="f-alt-thought" placeholder="uma forma mais equilibrada de ver a situação..." oninput="App.autoResize(this);App.updateCount('f-alt-thought','cc-alt')"></textarea>
         </div>
         <div class="field-card field-card--reflection">
-          <label>📊 Grau de Ansiedade Final (0–10)</label>
+          <label><span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="5"/><rect x="12" y="8" width="3" height="9"/><rect x="17" y="5" width="3" height="12"/></svg> Grau de Ansiedade Final (0–10)</span></label>
           <div class="slider-row">
             <input type="range" min="0" max="10" value="0" id="f-anxiety2" oninput="document.getElementById('anx2-val').textContent=this.value">
             <span class="slider-val" id="anx2-val">0</span>
@@ -208,8 +208,8 @@
 
       </div>
       <div class="form-actions">
-        <button class="btn-clear" onclick="App.clearForm()">🗑️ Limpar</button>
-        <button class="btn-save" id="btn-save" onclick="App.saveRecord()">💾 Salvar Registro</button>
+        <button class="btn-clear" onclick="App.clearForm()">Limpar</button>
+        <button class="btn-save" id="btn-save" onclick="App.saveRecord()">Salvar Registro</button>
       </div>
     </div>
   </div>
@@ -227,9 +227,9 @@
   <!-- PRIVACIDADE -->
   <div class="page" id="page-privacidade">
     <div class="privacy-info">
-      <strong>🔒 Seus dados são 100% privados</strong><br><br>
+      <strong>Seus dados são 100% privados</strong><br><br>
       Todos os seus registros são armazenados <strong>apenas no seu dispositivo</strong> (memória local do app). Eles nunca são enviados para nenhum servidor sem a sua ação explícita.<br><br>
-      Quando você toca em <strong>"📧 Enviar Relatório"</strong>, os dados são transmitidos de forma segura diretamente para o e-mail do seu psicólogo(a). Nenhum terceiro tem acesso.<br><br>
+      Quando você toca em <strong>"Enviar Relatório"</strong>, os dados são transmitidos de forma segura diretamente para o e-mail do seu psicólogo(a). Nenhum terceiro tem acesso.<br><br>
       O app não coleta dados analíticos, não tem rastreamento, não tem anúncios.<br><br>
       <strong>Para Android:</strong> instale o app tocando em "Adicionar à tela inicial" no Chrome.<br>
       <strong>Para iPhone:</strong> abra no Safari e toque em "Compartilhar → Adicionar à Tela de Início".
@@ -237,7 +237,7 @@
     <div style="padding:0 20px 20px">
       <div class="field-card" style="text-align:center">
         <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:10px">Versão do app</p>
-        <p style="font-family:'Lora',serif;font-size:1.1rem;color:var(--accent)">RDP Pro v1.0.0</p>
+        <p style="font-family:var(--font-app);font-size:1.1rem;color:var(--accent)">RDP Pro v1.0.0</p>
       </div>
     </div>
   </div>

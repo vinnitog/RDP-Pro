@@ -282,7 +282,11 @@ const App = (() => {
   function applyTheme() {
     document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "");
     const btn = document.getElementById("theme-btn");
-    if (btn) btn.textContent = darkMode ? "☀️" : "🌙";
+    if (btn) {
+      btn.innerHTML = darkMode
+        ? '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
+        : '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a7 7 0 1 0 11 11Z"/></svg>';
+    }
   }
   function toggleTheme() {
     darkMode = !darkMode;
@@ -349,7 +353,7 @@ const App = (() => {
     setSlider("f-anxiety1", "anx1-val", 0);
     setSlider("f-anxiety2", "anx2-val", 0);
     const btn = document.getElementById("btn-save");
-    if (btn) { btn.textContent = "💾 Salvar Registro"; btn.classList.remove("saved"); }
+    if (btn) { btn.textContent = "Salvar Registro"; btn.classList.remove("saved"); }
   }
 
   function setSlider(inputId, valId, val) {
@@ -401,16 +405,16 @@ const App = (() => {
 
     const btn = document.getElementById("btn-save");
     if (btn) {
-      btn.textContent = "✅ Salvo!";
+      btn.textContent = "Salvo!";
       btn.classList.add("saved");
       setTimeout(() => {
-        btn.textContent = "💾 Salvar Registro";
+        btn.textContent = "Salvar Registro";
         btn.classList.remove("saved");
       }, 1800);
     }
 
     clearForm();
-    showToast("Registro salvo! 💚");
+    showToast("Registro salvo!");
     setTimeout(goHistory, 1000);
   }
 
@@ -424,11 +428,11 @@ const App = (() => {
 
     try {
       await DB.Report.send(records);
-      showToast("✅ Relatório enviado com sucesso!");
+      showToast("Relatório enviado com sucesso!");
     } catch (e) {
       showToast("Erro ao enviar: " + e.message);
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = "📧 Enviar Relatório"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Enviar Relatório"; }
     }
   }
 
@@ -535,7 +539,7 @@ const App = (() => {
     doc.setTextColor(150, 150, 150);
     doc.text("Gerado pelo app RDP Pro", W / 2, H - 4, { align: "center" });
     doc.save(`RDP-Pro-${new Date().toLocaleDateString("pt-BR").replace(/\//g, "-")}.pdf`);
-    showToast("PDF exportado! 📄");
+    showToast("PDF exportado!");
   }
 
   function confirmClear() {
@@ -544,26 +548,26 @@ const App = (() => {
       state.records = [];
       renderHistory();
       applyLockUI();
-      showToast("Histórico limpo! Novo ciclo iniciado ✨");
+      showToast("Histórico limpo! Novo ciclo iniciado");
     }
   }
 
   // ─── HISTÓRICO ────────────────────────────────────────────────────────────
   function feelingEmoji(feeling) {
-    if (!feeling) return "😔";
+    if (!feeling) return "";
     const f = feeling.toLowerCase();
-    if (/raiva|irrita|bravo|fúria|revolta|ódio/.test(f))          return "😡";
-    if (/ansied|nervos|preocup|aperto|tenso|tensão|pavor/.test(f)) return "😰";
-    if (/medo|terror|assust|pânico|horror/.test(f))               return "😨";
-    if (/triste|tristeza|choro|vazio|solidão|sozinho/.test(f))    return "😢";
-    if (/vergonha|humilha|constrang|envergonha/.test(f))          return "😳";
-    if (/culpa|culpado|remorso/.test(f))                          return "😞";
-    if (/frustrad|decep/.test(f))                                 return "🙁";
-    if (/confus|perdido|desorient/.test(f))                       return "🤔";
-    if (/cansaço|cansado|esgota|exaust/.test(f))                  return "😫";
-    if (/feliz|alegri|contente|bem|animad/.test(f))               return "😄";
-    if (/calmo|tranquil|paz|sereno/.test(f))                      return "😌";
-    return "😔";
+    if (/raiva|irrita|bravo|fúria|revolta|ódio/.test(f)) return "Raiva:";
+    if (/ansied|nervos|preocup|aperto|tenso|tensão|pavor/.test(f)) return "Ansiedade:";
+    if (/medo|terror|assust|pânico|horror/.test(f)) return "Medo:";
+    if (/triste|tristeza|choro|vazio|solidão|sozinho/.test(f)) return "Tristeza:";
+    if (/vergonha|humilha|constrang|envergonha/.test(f)) return "Vergonha:";
+    if (/culpa|culpado|remorso/.test(f)) return "Culpa:";
+    if (/frustrad|decep/.test(f)) return "Frustração:";
+    if (/confus|perdido|desorient/.test(f)) return "Confusão:";
+    if (/cansaço|cansado|esgota|exaust/.test(f)) return "Cansaço:";
+    if (/feliz|alegri|contente|bem|animad/.test(f)) return "Bem-estar:";
+    if (/calmo|tranquil|paz|sereno/.test(f)) return "Calma:";
+    return "";
   }
 
   let _chart = null;
@@ -606,7 +610,7 @@ const App = (() => {
       });
     }, 50);
 
-    return `<div class="chart-card"><div class="chart-title">📊 Evolução da Ansiedade</div><div class="chart-canvas-wrap"><canvas id="${id}"></canvas></div></div>`;
+    return `<div class="chart-card"><div class="chart-title">Evolução da Ansiedade</div><div class="chart-canvas-wrap"><canvas id="${id}"></canvas></div></div>`;
   }
 
   function renderHistory() {
@@ -623,16 +627,16 @@ const App = (() => {
       html += `<div class="send-panel" style="${urgentStyle}">
         <div class="send-panel-label">
           ${locked
-            ? '<strong style="color:#c0393b">🔒 Limite atingido — envie e limpe para continuar</strong>'
+            ? '<strong style="color:#c0393b">Limite atingido — envie e limpe para continuar</strong>'
             : "<strong>Enviar histórico</strong>"}
           <span>${locked
             ? `Você atingiu ${state.maxDays} dias. <b>Novos registros estão bloqueados</b> até enviar e limpar.`
             : "Envie a qualquer momento e limpe para começar um novo ciclo."}</span>
         </div>
         <div class="send-panel-btns">
-          <button class="btn-export-pdf" onclick="App.exportPDF()">📄 PDF</button>
-          <button class="btn-export-email" id="btn-send-email" onclick="App.sendReport()">📧 Enviar Relatório</button>
-          <button class="btn-export-clear" onclick="App.confirmClear()">🗑️ Limpar</button>
+          <button class="btn-export-pdf" onclick="App.exportPDF()">PDF</button>
+          <button class="btn-export-email" id="btn-send-email" onclick="App.sendReport()">Enviar Relatório</button>
+          <button class="btn-export-clear" onclick="App.confirmClear()">Limpar</button>
         </div>
       </div>`;
     }
@@ -641,9 +645,9 @@ const App = (() => {
 
     if (!records.length) {
       // [UI] empty state com CTA — direciona o usuário para a ação
-      html += `<div class="history-empty"><div class="icon">📖</div><p>Nenhum registro ainda.<br>Preencha o formulário!</p><button class="empty-cta" onclick="App.showTab('formulario', document.querySelectorAll('.tab')[0])">📝 Fazer primeiro registro</button></div>`;
+      html += `<div class="history-empty"><p>Nenhum registro ainda.<br>Preencha o formulário!</p><button class="empty-cta" onclick="App.showTab('formulario', document.querySelectorAll('.tab')[0])">Fazer primeiro registro</button></div>`;
     } else {
-      html += `<div class="days-counter">📅 <span>${dias}</span> dia${dias !== 1 ? "s" : ""} de ${state.maxDays}</div>`;
+      html += `<div class="days-counter"><span>${dias}</span> dia${dias !== 1 ? "s" : ""} de ${state.maxDays}</div>`;
       html += records.map((r) => {
         const safe = (s) => (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
         const syncDot = r.synced
@@ -660,12 +664,12 @@ const App = (() => {
             <div class="history-anx">Ansiedade: ${r.anxiety1}/10 → ${r.anxiety2}/10</div>
           </div>
           <div class="history-detail">
-            ${r.thought ? `<div class="detail-row"><label>💭 Pensamento Automático</label><p>${safe(r.thought)}</p></div>` : ""}
-            ${r.reaction ? `<div class="detail-row"><label>⚡ Reação</label><p>${safe(r.reaction)}</p></div>` : ""}
-            ${(r.altThought || r.alt_thought) ? `<div class="detail-row"><label>🌱 Pensamento Alternativo</label><p>${safe(r.altThought || r.alt_thought)}</p></div>` : ""}
+            ${r.thought ? `<div class="detail-row"><label>Pensamento Automático</label><p>${safe(r.thought)}</p></div>` : ""}
+            ${r.reaction ? `<div class="detail-row"><label>Reação</label><p>${safe(r.reaction)}</p></div>` : ""}
+            ${(r.altThought || r.alt_thought) ? `<div class="detail-row"><label>Pensamento Alternativo</label><p>${safe(r.altThought || r.alt_thought)}</p></div>` : ""}
             <div class="detail-actions">
-              <button class="btn-edit" onclick="App.loadRecord(${r.id})">✏️ Editar</button>
-              <button class="btn-del"  onclick="App.deleteRecord(${r.id})">🗑️ Deletar</button>
+              <button class="btn-edit" onclick="App.loadRecord(${r.id})">Editar</button>
+              <button class="btn-del"  onclick="App.deleteRecord(${r.id})">Deletar</button>
             </div>
           </div>
         </div>`;
@@ -683,7 +687,7 @@ const App = (() => {
     if (!area) return;
 
     if (records.length < 2) {
-      area.innerHTML = `<div class="history-empty"><div class="icon">📈</div><p>Adicione pelo menos 2 registros<br>para ver seus padrões.</p></div>`;
+      area.innerHTML = `<div class="history-empty"><p>Adicione pelo menos 2 registros<br>para ver seus padrões.</p></div>`;
       return;
     }
 
@@ -739,13 +743,13 @@ const App = (() => {
       </div>
 
       <div class="insight-section">
-        <div class="insight-section-title">🕐 Quando você mais registra</div>
+        <div class="insight-section-title">Quando você mais registra</div>
         <div class="insight-section-body">Seus registros se concentram no período da <strong>${peakPeriod}</strong> (pico às ${peakHour}h).</div>
       </div>
 
       ${topFeelings.length ? `
       <div class="insight-section">
-        <div class="insight-section-title">❤️ Sentimentos mais frequentes</div>
+        <div class="insight-section-title">Sentimentos mais frequentes</div>
         ${topFeelings.map(([feeling, count]) => `
           <div class="feeling-bar-row">
             <span class="feeling-label">${feeling}</span>
@@ -757,7 +761,7 @@ const App = (() => {
       </div>` : ""}
 
       <div class="insight-section">
-        <div class="insight-section-title">📈 Tendência do ciclo</div>
+        <div class="insight-section-title">Tendência do ciclo</div>
         <div class="insight-section-body">${
           avgDelta < -1
             ? "Ótimo progresso! Sua ansiedade reduziu consistentemente após as reflexões."
@@ -805,7 +809,7 @@ const App = (() => {
     showTab("formulario", document.querySelectorAll(".tab")[0]);
     state.editingId = r.id;
     const btn = document.getElementById("btn-save");
-    if (btn) btn.textContent = "💾 Atualizar Registro";
+    if (btn) btn.textContent = "Atualizar Registro";
     applyLockUI();
 
     setTimeout(() => {

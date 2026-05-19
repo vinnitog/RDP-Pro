@@ -3,6 +3,6 @@
   "version": "1.1.2",
   "private": true,
   "scripts": {
-    "test": "node tests/sql-rpc-regression.test.js && node --check js/config.js && node --check js/db.js && node --check js/app.js && node --check js/therapist.js && node --check sw.js"
+    "test": "node tests/sql-rpc-regression.test.js && node tests/ui-consistency.test.js && node --check js/config.js && node --check js/db.js && node --check js/app.js && node --check js/therapist.js && node --check sw.js"
   }
 }

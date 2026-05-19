@@ -101,7 +101,7 @@ const Therapist = (() => {
     setLoading("btn-signup", true);
     try {
       await DB.Auth.signUp({ email, password, fullName, crp, clinicName });
-      showError("signup-error", "✅ Conta criada! Verifique seu e-mail para confirmar.", "success");
+      showError("signup-error", "Conta criada! Verifique seu e-mail para confirmar.", "success");
     } catch (e) {
       showError("signup-error", e.message || "Erro ao criar conta");
     } finally {
@@ -196,16 +196,16 @@ const Therapist = (() => {
         <div class="patient-info">
           <div class="patient-name">${esc(p.full_name || "Aguardando onboarding")}</div>
           <div class="patient-meta">
-            <span>📝 ${recordCount} registro${recordCount !== 1 ? "s" : ""}</span>
-            <span>🕐 ${lastSeen}</span>
+            <span>${recordCount} registro${recordCount !== 1 ? "s" : ""}</span>
+            <span>${lastSeen}</span>
             ${!p.active ? '<span style="color:#c62828">Inativo</span>' : ""}
           </div>
         </div>
         <div class="patient-actions">
-          <button class="t-btn t-btn-sm" onclick="Therapist.copyInvite('${inviteUrl}')">🔗 Copiar link</button>
-          <button class="t-btn t-btn-sm" onclick="Therapist.viewRecords('${p.id}', '${esc(p.full_name || "Paciente")}')">📋 Ver registros</button>
+          <button class="t-btn t-btn-sm" onclick="Therapist.copyInvite('${inviteUrl}')">Copiar link</button>
+          <button class="t-btn t-btn-sm" onclick="Therapist.viewRecords('${p.id}', '${esc(p.full_name || "Paciente")}')">Ver registros</button>
           <button class="t-btn t-btn-sm t-btn-danger" onclick="Therapist.togglePatient('${p.id}', ${!p.active})">
-            ${p.active ? "🔒 Desativar" : "✅ Ativar"}
+            ${p.active ? "Desativar" : "Ativar"}
           </button>
         </div>
       </div>`;
@@ -223,7 +223,7 @@ const Therapist = (() => {
       document.getElementById("invite-url-display").textContent = inviteUrl;
       document.getElementById("invite-result").style.display = "block";
       await renderPatients();
-      showToast("✅ Paciente criado! Copie o link de convite.");
+      showToast("Paciente criado! Copie o link de convite.");
     } catch (e) {
       showToast("Erro: " + e.message);
     } finally {
@@ -232,7 +232,7 @@ const Therapist = (() => {
   }
 
   function copyInvite(url) {
-    navigator.clipboard.writeText(url).then(() => showToast("🔗 Link copiado!"));
+    navigator.clipboard.writeText(url).then(() => showToast("Link copiado!"));
   }
 
   async function togglePatient(id, active) {
@@ -306,7 +306,7 @@ const Therapist = (() => {
       });
       profile = await DB.Auth.getProfile();
       renderProfile();
-      showToast("✅ Configurações salvas!");
+      showToast("Configurações salvas!");
       showView("view-painel");
     } catch (e) {
       showToast("Erro: " + e.message);

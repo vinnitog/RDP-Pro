@@ -25,6 +25,11 @@
 
   --shadow-sm: 0 1px 3px rgba(60,58,50,0.07), 0 1px 2px rgba(60,58,50,0.04);
   --shadow-md: 0 4px 16px rgba(60,58,50,0.09), 0 2px 4px rgba(60,58,50,0.05);
+  --font-app: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --header-button-bg: rgba(255,255,255,0.9);
+  --header-button-bg-hover: #ffffff;
+  --header-button-text: #151711;
+  --header-button-border: rgba(255,255,255,0.84);
 }
 
 [data-theme="dark"] {
@@ -46,18 +51,58 @@
   --focus-ring:rgba(147, 168, 104, 0.28);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.28);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.38);
+  --header-button-bg: rgba(245,247,239,0.92);
+  --header-button-bg-hover: #ffffff;
+  --header-button-text: #11140f;
+  --header-button-border: rgba(255,255,255,0.7);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-app);
   font-size: 16px;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ui-icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -0.14em;
+  color: currentColor;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  color: #151711;
+  margin: 0 auto 8px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme="dark"] .logo-icon {
+  color: #f2f4ec;
+}
+
+.icon-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 @keyframes fadeIn {
@@ -78,7 +123,7 @@ body {
   box-shadow: 0 2px 12px rgba(30,35,20,0.2);
 }
 .t-header h1 {
-  font-family: 'Lora', serif;
+  font-family: var(--font-app);
   font-size: 1rem;
   color: #e8edda;
   letter-spacing: 0.01em;
@@ -145,7 +190,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: 10px;
   background: var(--surface2);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-app);
   font-size: 1rem;
   color: var(--text);
   outline: none;
@@ -176,7 +221,7 @@ body {
   border: 1.5px solid var(--border);
   background: transparent;
   color: var(--text-muted);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-app);
   font-size: 0.88rem;
   font-weight: 500;
   cursor: pointer;
@@ -190,6 +235,39 @@ body {
 .t-btn:active:not(:disabled) { transform: scale(0.98); }
 .t-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .t-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.t-btn-header {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--header-button-border);
+  background: var(--header-button-bg);
+  color: var(--header-button-text);
+  box-shadow: 0 1px 2px rgba(16, 18, 12, 0.14);
+  gap: 7px;
+}
+.t-btn-header:hover:not(:disabled) {
+  background: var(--header-button-bg-hover);
+  color: var(--header-button-text);
+  filter: none;
+}
+.t-btn-header:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.t-btn-header-logout {
+  padding-inline: 15px;
+}
+
+[data-theme="dark"] .t-btn-header {
+  background: var(--header-button-bg);
+  border-color: var(--header-button-border);
+  color: var(--header-button-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.34);
+}
+[data-theme="dark"] .t-btn-header:hover:not(:disabled) {
+  background: var(--header-button-bg-hover);
+  color: var(--header-button-text);
+}
 
 .t-btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
 .t-btn-primary:hover:not(:disabled) { filter: brightness(0.9); background: var(--accent); }
@@ -288,7 +366,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: 10px;
   background: var(--surface2);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-app);
   font-size: 0.95rem;
   color: var(--text);
   outline: none;
@@ -347,7 +425,7 @@ body {
   margin-bottom: 20px;
 }
 .pr-patient-title {
-  font-family: 'Lora', serif;
+  font-family: var(--font-app);
   font-size: 1.1rem;
   color: var(--accent);
   letter-spacing: -0.01em;
