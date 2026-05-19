@@ -19,7 +19,11 @@ rdp-pro/
     |-- migrations/
     |   |-- 001_initial_schema.sql
     |   |-- 002_fix_rls_security.sql
-    |   `-- 003_patient_auth_ptbr_routes.sql
+    |   |-- 003_patient_auth_ptbr_routes.sql
+    |   `-- 006_invite_single_use.sql
+    |-- templates/
+    |   |-- confirm-signup.html
+    |   `-- confirm-signup-subject.txt
     `-- functions/
         |-- enviar-relatorio/
         `-- send-report/    # Compatibilidade com endpoint antigo
@@ -34,7 +38,8 @@ rdp-pro/
 3. No SQL Editor, execute as migrations em ordem: `001`, `002`, `003`.
 4. Se o paciente receber erro `PGRST202` em `claim_patient_invite`, execute tambem a `004_repair_patient_auth_rpc.sql` no SQL Editor para recriar as RPCs e recarregar o schema do Supabase.
 5. Se, depois disso, aparecer `column reference "invite_token" is ambiguous`, execute a `005_fix_claim_patient_invite_ambiguity.sql`.
-6. Repita no projeto de teste, se houver.
+6. Execute a `006_invite_single_use.sql` para invalidar convites apos o primeiro vinculo de conta.
+7. Repita no projeto de teste, se houver.
 
 ### Edge Function
 
@@ -66,6 +71,19 @@ https://SEU_USUARIO.github.io/RDP-Pro/**
 
 O app tambem envia `emailRedirectTo` no cadastro para reforcar as rotas pt-BR.
 
+### Auth Email Template
+
+No Supabase Dashboard, acesse Authentication > Email Templates > Confirm signup.
+
+Use:
+
+```text
+Subject: supabase/templates/confirm-signup-subject.txt
+Body: supabase/templates/confirm-signup.html
+```
+
+O template usa `{{ .ConfirmationURL }}` e `{{ .Email }}`, variaveis oficiais do Supabase Auth.
+
 ### GitHub Pages
 
 A rota principal do paciente e:
@@ -86,8 +104,9 @@ https://SEU_USUARIO.github.io/rdp-pro/psicologo.html
 
 1. Acessa `psicologo.html` e cria conta.
 2. Clica em **+ Novo convite**.
-3. Copia o link com `?convite=` e envia para o paciente.
-4. Em **Configuracoes**, define e-mail de recebimento e limite de dias.
+3. Envia o link com `?convite=` para o paciente.
+4. Usa **Gerar novo link** quando precisar invalidar o link anterior e criar outro.
+5. Em **Configuracoes**, define e-mail de recebimento e limite de dias.
 
 ### Paciente
 

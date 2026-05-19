@@ -4,6 +4,7 @@ const Therapist = (() => {
   let profile = null;
   let dashboardPromise = null;
   let authEnterBound = false;
+  let latestInvitePatientId = null;
 
   function buildPatientInviteUrl(token) {
     const url = new URL("paciente.html", location.href);
@@ -192,7 +193,12 @@ const Therapist = (() => {
       const lastSeen = p.last_seen_at
         ? new Date(p.last_seen_at).toLocaleDateString("pt-BR")
         : "Nunca acessou";
-      const inviteUrl = buildPatientInviteUrl(p.invite_token);
+      const isAwaitingOnboarding = !p.user_id && !p.full_name && !p.last_seen_at && recordCount === 0;
+      const statusButton = isAwaitingOnboarding
+        ? `<button class="t-btn t-btn-sm t-btn-danger" onclick="Therapist.deleteInvite('${p.id}')">Deletar convite</button>`
+        : `<button class="t-btn t-btn-sm t-btn-danger" onclick="Therapist.togglePatient('${p.id}', ${!p.active})">
+            ${p.active ? "Desativar" : "Ativar"}
+          </button>`;
 
       return `<div class="patient-card ${!p.active ? "inactive" : ""}">
         <div class="patient-info">
@@ -204,11 +210,9 @@ const Therapist = (() => {
           </div>
         </div>
         <div class="patient-actions">
-          <button class="t-btn t-btn-sm" onclick="Therapist.copyInvite('${inviteUrl}')">Copiar link</button>
+          <button class="t-btn t-btn-sm" onclick="Therapist.regenerateInvite('${p.id}')">Gerar novo link</button>
           <button class="t-btn t-btn-sm" onclick="Therapist.viewRecords('${p.id}', '${esc(p.full_name || "Paciente")}')">Ver registros</button>
-          <button class="t-btn t-btn-sm t-btn-danger" onclick="Therapist.togglePatient('${p.id}', ${!p.active})">
-            ${p.active ? "Desativar" : "Ativar"}
-          </button>
+          ${statusButton}
         </div>
       </div>`;
     }).join("");
@@ -221,11 +225,12 @@ const Therapist = (() => {
     try {
       const patient = await DB.Therapist.createPatient(name || null);
       const inviteUrl = buildPatientInviteUrl(patient.invite_token);
+      latestInvitePatientId = patient.id;
       document.getElementById("new-patient-name").value = "";
       document.getElementById("invite-url-display").textContent = inviteUrl;
       document.getElementById("invite-result").style.display = "block";
       await renderPatients();
-      showToast("Paciente criado! Copie o link de convite.");
+      showToast("Convite criado!");
     } catch (e) {
       showToast("Erro: " + e.message);
     } finally {
@@ -235,6 +240,43 @@ const Therapist = (() => {
 
   function copyInvite(url) {
     navigator.clipboard.writeText(url).then(() => showToast("Link copiado!"));
+  }
+
+  async function regenerateLatestInvite() {
+    if (!latestInvitePatientId) return;
+    await regenerateInvite(latestInvitePatientId);
+  }
+
+  async function regenerateInvite(patientId) {
+    try {
+      const patient = await DB.Therapist.generatePatientInvite(patientId);
+      const inviteUrl = buildPatientInviteUrl(patient.invite_token);
+      latestInvitePatientId = patient.id;
+      document.getElementById("invite-url-display").textContent = inviteUrl;
+      document.getElementById("invite-result").style.display = "block";
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(inviteUrl).catch(() => {});
+      }
+      await renderPatients();
+      showToast("Novo link gerado!");
+    } catch (e) {
+      showToast("Erro: " + e.message);
+    }
+  }
+
+  async function deleteInvite(patientId) {
+    if (!confirm("Deletar este convite?")) return;
+    try {
+      await DB.Therapist.deletePatientInvite(patientId);
+      if (latestInvitePatientId === patientId) {
+        latestInvitePatientId = null;
+        document.getElementById("invite-result").style.display = "none";
+      }
+      await renderPatients();
+      showToast("Convite deletado");
+    } catch (e) {
+      showToast("Erro: " + e.message);
+    }
   }
 
   async function togglePatient(id, active) {
@@ -348,7 +390,7 @@ const Therapist = (() => {
 
   return {
     init, signIn, signUp, signOut,
-    createPatient, copyInvite, togglePatient,
+    createPatient, copyInvite, regenerateLatestInvite, regenerateInvite, deleteInvite, togglePatient,
     viewRecords, showSettings, saveSettings,
     showView, loadDashboard, filterPatients,
   };

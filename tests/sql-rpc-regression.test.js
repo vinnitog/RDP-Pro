@@ -7,6 +7,7 @@ const migrations = [
   "supabase/migrations/003_patient_auth_ptbr_routes.sql",
   "supabase/migrations/004_repair_patient_auth_rpc.sql",
   "supabase/migrations/005_fix_claim_patient_invite_ambiguity.sql",
+  "supabase/migrations/006_invite_single_use.sql",
 ];
 
 function readMigration(file) {
@@ -60,5 +61,30 @@ for (const migration of migrations) {
     `${migration}: claim_patient_invite should qualify id in update where clause`
   );
 }
+
+const inviteSql = readMigration("supabase/migrations/006_invite_single_use.sql");
+const getPatientByTokenBody = getFunctionBody(inviteSql, "get_patient_by_token");
+const claimPatientInviteBody = getFunctionBody(inviteSql, "claim_patient_invite");
+
+assert.match(
+  inviteSql,
+  /add column if not exists invite_used_at timestamptz/i,
+  "006: patients should track when an invite has been used"
+);
+assert.match(
+  getPatientByTokenBody,
+  /pt\.invite_used_at\s+is\s+null/i,
+  "006: get_patient_by_token should only validate unused invites"
+);
+assert.match(
+  claimPatientInviteBody,
+  /p\.invite_used_at\s+is\s+null/i,
+  "006: claim_patient_invite should reject already-used invites"
+);
+assert.match(
+  claimPatientInviteBody,
+  /invite_used_at\s*=\s*now\(\)/i,
+  "006: claim_patient_invite should mark the invite as used"
+);
 
 console.log("SQL RPC regression tests passed");

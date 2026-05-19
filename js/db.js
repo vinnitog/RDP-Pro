@@ -50,6 +50,12 @@ const DB = (() => {
     throw err;
   }
 
+  function generateInviteToken() {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
   // ─── SESSION DO PACIENTE ────────────────────────────────────────────────────
   const Patient = {
     save(data) { LS.set("rdp_patient_session", data); },
@@ -407,6 +413,30 @@ const DB = (() => {
         .eq("id", patientId);
       if (error) throw error;
     },
+
+    async generatePatientInvite(patientId) {
+      const token = generateInviteToken();
+      const { data, error } = await client()
+        .from("patients")
+        .update({
+          invite_token: token,
+          invite_used_at: null,
+          active: true,
+        })
+        .eq("id", patientId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+
+    async deletePatientInvite(patientId) {
+      const { error } = await client()
+        .from("patients")
+        .delete()
+        .eq("id", patientId);
+      if (error) throw error;
+    },
   };
 
   // ─── ENVIO DE RELATÓRIO ─────────────────────────────────────────────────────
@@ -414,12 +444,13 @@ const DB = (() => {
     async send(records) {
       const session = Patient.get();
       if (!session) throw new Error("Sessão não encontrada");
+      const authSession = await Patient.getAuthSession();
 
       const request = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${window.RDP_CONFIG.supabase.anonKey}`,
+            "Authorization": `Bearer ${authSession?.access_token || window.RDP_CONFIG.supabase.anonKey}`,
           },
           body: JSON.stringify({
             patient_id:        session.patient_id,

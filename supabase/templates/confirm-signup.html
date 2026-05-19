@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirme seu e-mail no RDP Pro</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f2eb;font-family:Arial,Helvetica,sans-serif;color:#202416">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f2eb;margin:0;padding:28px 12px">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #ded8c8;border-radius:12px;overflow:hidden">
+            <tr>
+              <td style="background:#4a5535;padding:28px 32px">
+                <p style="margin:0 0 6px;color:#cfd9b8;font-size:13px;letter-spacing:.04em;text-transform:uppercase">RDP Pro</p>
+                <h1 style="margin:0;color:#ffffff;font-size:24px;line-height:1.25;font-weight:700">Confirme seu e-mail</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px">
+                <p style="margin:0 0 16px;color:#202416;font-size:16px;line-height:1.55">
+                  Recebemos uma solicitacao de cadastro para <strong>{{ .Email }}</strong>.
+                </p>
+                <p style="margin:0 0 24px;color:#4d5540;font-size:15px;line-height:1.55">
+                  Para ativar sua conta e continuar no RDP Pro, confirme seu e-mail pelo botao abaixo.
+                </p>
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px">
+                  <tr>
+                    <td style="background:#6b7c4a;border-radius:8px">
+                      <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 22px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700">
+                        Confirmar e-mail
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 8px;color:#6f7468;font-size:13px;line-height:1.5">
+                  Se o botao nao funcionar, copie e cole este link no navegador:
+                </p>
+                <p style="margin:0;color:#6b7c4a;font-size:12px;line-height:1.5;word-break:break-all">
+                  {{ .ConfirmationURL }}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 32px;background:#f8f6ef;border-top:1px solid #e7e1d2">
+                <p style="margin:0;color:#777d6d;font-size:12px;line-height:1.45">
+                  Se voce nao solicitou este cadastro, ignore este e-mail.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
