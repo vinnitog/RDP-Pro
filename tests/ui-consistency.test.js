@@ -8,8 +8,28 @@ function read(file) {
   return fs.readFileSync(path.join(root, file), "utf8");
 }
 
+function getRuleProps(css, selector) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\}`));
+  assert.ok(match, `CSS rule ${selector} should exist`);
+  return Object.fromEntries(
+    match[1]
+      .split(";")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const index = line.indexOf(":");
+        return [
+          line.slice(0, index).trim(),
+          line.slice(index + 1).replace(/\s+/g, " ").replace(/,\s*/g, ",").trim(),
+        ];
+      })
+  );
+}
+
 const appCss = read("css/app.css");
 const therapistCss = read("css/therapist.css");
+const indexHtml = read("index.html");
 const patientHtml = read("paciente.html");
 const therapistHtml = read("psicologo.html");
 const therapistAliasHtml = read("therapist.html");
@@ -17,6 +37,7 @@ const appJs = read("js/app.js");
 const dbJs = read("js/db.js");
 
 for (const [file, html] of [
+  ["index.html", indexHtml],
   ["paciente.html", patientHtml],
   ["psicologo.html", therapistHtml],
   ["therapist.html", therapistAliasHtml],
@@ -43,7 +64,7 @@ for (const [file, css] of [
 }
 
 assert.doesNotMatch(
-  patientHtml + therapistHtml + therapistAliasHtml + appJs,
+  indexHtml + patientHtml + therapistHtml + therapistAliasHtml + appJs,
   /[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u,
   "UI source should not use colorful emoji icons"
 );
@@ -94,16 +115,52 @@ assert.doesNotMatch(
 
 // patient header should not display the patient name next to the logout button
 assert.doesNotMatch(
-  patientHtml,
+  indexHtml + patientHtml,
   /id="patient-name-header"/,
-  "paciente.html: patient name div must be removed from the header"
+  "patient routes should not render patient name in the header"
+);
+
+assert.doesNotMatch(
+  indexHtml + patientHtml,
+  /id="therapist-name-header"/,
+  "patient routes should not render therapist name in the header"
+);
+
+assert.match(indexHtml, /new URL\("paciente\.html", location\.href\)/, "index.html should redirect legacy traffic to paciente.html");
+assert.match(indexHtml, /target\.search = location\.search/, "index.html redirect should preserve query params");
+assert.match(indexHtml, /target\.hash = location\.hash/, "index.html redirect should preserve hash");
+
+assert.doesNotMatch(
+  appJs,
+  /patient-name-header|therapist-name-header/,
+  "js/app.js: patient header should not receive session names"
 );
 
 // logout button must match the therapist header button style (white bg, dark text)
 assert.match(
   appCss,
-  /\.logout-btn[\s\S]*?background:\s*rgba\(255,255,255,0\.9/,
+  /--header-button-bg:\s*rgba\(255,255,255,0\.9\)/,
   "css/app.css: logout-btn should use white semi-opaque background matching t-btn-header"
+);
+const logoutBtn = getRuleProps(appCss, ".logout-btn");
+const therapistHeaderBtn = getRuleProps(therapistCss, ".t-btn-header");
+const therapistLogoutBtn = getRuleProps(therapistCss, ".t-btn-header-logout");
+
+for (const prop of ["min-height", "border-radius", "border", "background", "color", "box-shadow", "gap"]) {
+  assert.equal(logoutBtn[prop], therapistHeaderBtn[prop], `css/app.css: logout ${prop} should match therapist header button`);
+}
+assert.equal(logoutBtn.padding, "0 15px", "css/app.css: logout should use the same horizontal padding as therapist logout");
+assert.equal(therapistLogoutBtn["padding-inline"], "15px", "css/therapist.css: therapist logout should define matching inline padding");
+
+assert.equal(
+  getRuleProps(appCss, ".logout-btn:hover").background,
+  getRuleProps(therapistCss, ".t-btn-header:hover:not(:disabled)").background,
+  "css/app.css: logout hover background should match therapist header hover"
+);
+assert.equal(
+  getRuleProps(appCss, '[data-theme="dark"] .logout-btn').background,
+  getRuleProps(therapistCss, '[data-theme="dark"] .t-btn-header').background,
+  "css/app.css: dark logout background should match therapist header button"
 );
 
 // db.js must have a fetchAndMerge function to pull remote records into localStorage

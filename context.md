@@ -98,11 +98,43 @@ Campos relevantes em `patients`:
 
 ## Workflow Git
 
-Sempre que houver criacao ou alteracao de arquivos neste projeto, inclusive em chats futuros, finalizar o trabalho com:
+Workspace correto:
 
-1. `git status`
-2. `git add`
-3. `git commit`
-4. `git push`
+```text
+C:\Users\Togszera\Desktop\RDP-Pro
+```
+
+Nao usar `C:\Users\Togszera\Documents\RDP-Pro`.
+
+Branch base de trabalho: `develop`.
+
+Sempre que houver criacao ou alteracao de arquivos neste projeto, inclusive em chats futuros, seguir obrigatoriamente:
+
+1. `senior-dev`: implementa qualquer ajuste, melhoria, bugfix, ideia nova ou funcionalidade.
+2. `code-reviewer`: revisa minuciosamente as alteracoes, aponta riscos e corrige o que for necessario.
+3. `qa-senior`: faz analise de impacto e define casos de teste, incluindo regressivos quando algo existente foi alterado.
+4. `qa-automate`: cria ou ajusta testes automatizados definidos pelo `qa-senior`.
+5. Validar testes automatizados e revisar diff.
+6. `git status`
+7. Fazer staging apenas dos arquivos revisados e pertencentes ao escopo com `git add -- <arquivos>`.
+8. Rodar `git diff --cached`.
+9. `git commit`
+10. `git push origin develop`
+11. Abrir PR `develop -> main` para aprovacao, ou atualizar/comentar o PR existente se ele ja existir.
 
 Se algum desses passos falhar por permissao, credencial, conflito ou ambiente, informar o bloqueio claramente.
+
+Nunca fazer push direto para `main`.
+
+Se algum agent formal nao estiver disponivel na sessao, executar a etapa como papel explicito no proprio Codex e registrar no resumo final. Quando houver ferramenta de subagents disponivel, usar subagents com esses papeis no prompt.
+
+## Testes e Browser
+
+No PowerShell, evitar `npm test` porque `npm.ps1` pode ser bloqueado pela ExecutionPolicy. Usar:
+
+```powershell
+.\test.cmd
+npm.cmd test
+```
+
+Para evitar recorrencia de `ERR_BLOCKED_BY_CLIENT`, nao usar Browser para `file://`, `localhost` ou `127.0.0.1`, salvo pedido explicito do usuario. Se o usuario pedir Browser e bloquear, parar imediatamente e substituir por testes automatizados/estaticos que cubram o comportamento ou estilo alterado.

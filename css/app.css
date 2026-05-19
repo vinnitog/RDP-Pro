@@ -48,6 +48,10 @@
   --font-app:    'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --icon:        #171914;
   --icon-on-dark:#11140f;
+  --header-button-bg: rgba(255,255,255,0.9);
+  --header-button-bg-hover: #ffffff;
+  --header-button-text: #151711;
+  --header-button-border: rgba(255,255,255,0.84);
 }
 
 /* [clínico] Dark mode musgo — reconfortante, não sombrio */
@@ -76,6 +80,10 @@
   --warning-border: #6b5a20;
   --icon:        #f3f5ee;
   --icon-on-dark:#11140f;
+  --header-button-bg: rgba(245,247,239,0.92);
+  --header-button-bg-hover: #ffffff;
+  --header-button-text: #11140f;
+  --header-button-border: rgba(255,255,255,0.7);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -279,20 +287,15 @@ header {
   z-index: 100;
   box-shadow: 0 2px 16px rgba(30,35,20,0.22);
 }
-.header-title { text-align: center; flex: 1; }
+.header-title { text-align: center; flex: 1; min-width: 0; padding: 0 12px; }
 .header-title h1 {
   font-family: var(--font-app);
   font-size: 1rem;
   color: #e8edda;
   letter-spacing: 0.01em;
   white-space: nowrap;
-}
-.header-title p {
-  font-size: 0.78rem;
-  color: #b8cba0;
-  margin-top: 2px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .header-left { display: flex; align-items: center; width: 44px; }
 
@@ -322,9 +325,9 @@ header {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  border: 1px solid rgba(255,255,255,0.84);
-  background: rgba(255,255,255,0.90);
-  color: #151711;
+  border: 1px solid var(--header-button-border);
+  background: var(--header-button-bg);
+  color: var(--header-button-text);
   font-family: var(--font-app);
   font-size: 0.88rem;
   font-weight: 500;
@@ -338,7 +341,8 @@ header {
 }
 
 .logout-btn:hover {
-  background: #ffffff;
+  background: var(--header-button-bg-hover);
+  color: var(--header-button-text);
 }
 
 .logout-btn:active {
@@ -346,15 +350,15 @@ header {
 }
 
 [data-theme="dark"] .logout-btn {
-  background: rgba(245,247,239,0.92);
-  border-color: rgba(255,255,255,0.70);
-  color: #11140f;
+  background: var(--header-button-bg);
+  border-color: var(--header-button-border);
+  color: var(--header-button-text);
   box-shadow: 0 1px 2px rgba(0,0,0,0.34);
 }
 
 [data-theme="dark"] .logout-btn:hover {
-  background: #ffffff;
-  color: #11140f;
+  background: var(--header-button-bg-hover);
+  color: var(--header-button-text);
 }
 
 /* ─── TABS ───────────────────────────────────────────────────────────────── */

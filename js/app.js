@@ -270,17 +270,9 @@ const App = (() => {
 
   // ─── RENDERIZAÇÃO PRINCIPAL ───────────────────────────────────────────────
   function renderAll() {
-    renderHeader();
     applyLockUI();
     renderHistory();
     applyTheme();
-  }
-
-  function renderHeader() {
-    const el = document.getElementById("patient-name-header");
-    if (el) el.textContent = state.session?.patient_name || "";
-    const el2 = document.getElementById("therapist-name-header");
-    if (el2) el2.textContent = state.session?.therapist_name || "";
   }
 
   // ─── TEMA ─────────────────────────────────────────────────────────────────
