@@ -591,6 +591,27 @@ const App = (() => {
     return { icon: uiIcon("heart", "ui-icon feeling-icon"), label: "" };
   }
 
+  function normalizeFeelingText(text) {
+    return (text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  function formatFeelingText(feeling, label, safe) {
+    const display = feeling || "–";
+    if (!label) return safe(display);
+    const labelText = label.replace(/:$/, "");
+    const normalizedFeeling = normalizeFeelingText(display);
+    const normalizedLabel = normalizeFeelingText(labelText);
+    if (normalizedFeeling === normalizedLabel || normalizedFeeling.startsWith(`${normalizedLabel} `)) {
+      return safe(display);
+    }
+    return `${safe(label)} ${safe(display)}`;
+  }
+
   let _chart = null;
 
   function renderChart(records) {
@@ -682,7 +703,7 @@ const App = (() => {
               <span class="history-chevron">▾</span>
             </div>
             <div class="history-situation">${safe(r.situation || "(sem situação)")}</div>
-            <div class="history-feeling">${feeling.icon}<span>${feeling.label ? `${feeling.label} ` : ""}${safe(r.feeling || "–")}</span></div>
+            <div class="history-feeling">${feeling.icon}<span>${formatFeelingText(r.feeling, feeling.label, safe)}</span></div>
             <div class="history-anx">Ansiedade: ${r.anxiety1}/10 → ${r.anxiety2}/10</div>
           </div>
           <div class="history-detail">

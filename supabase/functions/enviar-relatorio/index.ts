@@ -24,18 +24,31 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
+    const userSupabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: req.headers.get("Authorization") || "" } } }
+    );
 
     const payload: ReportPayload = await req.json();
     const { patient_id, invite_token, records, patient_name, timezone_offset } = payload;
 
-    // Valida token e busca dados do psicólogo
-    const { data: patientData, error: patientError } = await supabase
-      .rpc("get_patient_by_token", { p_token: invite_token })
+    // Pacientes autenticados validam pelo JWT; o convite fica invalido apos uso.
+    let { data: patientData, error: patientError } = await userSupabase
+      .rpc("get_current_patient")
       .single();
+
+    if (!patientData) {
+      const legacy = await supabase
+        .rpc("get_patient_by_token", { p_token: invite_token })
+        .single();
+      patientData = legacy.data;
+      patientError = legacy.error;
+    }
 
     if (patientError || !patientData) {
       return new Response(
-        JSON.stringify({ error: "Token inválido ou paciente não encontrado" }),
+        JSON.stringify({ error: "Paciente nao autenticado ou convite invalido" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

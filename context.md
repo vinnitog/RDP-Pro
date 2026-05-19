@@ -58,6 +58,7 @@ Tabelas:
 
 Campos relevantes em `patients`:
 - `invite_token`: usado para introduzir/vincular a conta.
+- `invite_used_at`: preenchido quando a conta do paciente e vinculada; convites usados deixam de validar no app.
 - `user_id`: conta Supabase Auth do paciente.
 - `full_name`, `email`, `active`, `last_seen_at`.
 
@@ -82,8 +83,8 @@ Campos relevantes em `patients`:
 
 ## RPCs principais
 
-- `get_patient_by_token(p_token)`: valida convite e mostra contexto inicial.
-- `claim_patient_invite(p_token, p_full_name)`: vincula convite a conta autenticada.
+- `get_patient_by_token(p_token)`: valida convite ainda nao usado e mostra contexto inicial.
+- `claim_patient_invite(p_token, p_full_name)`: vincula convite a conta autenticada e marca `invite_used_at`.
 - `get_current_patient()`: recupera paciente pela sessao autenticada.
 - `update_current_patient_name(p_full_name)`: atualiza nome do paciente logado.
 

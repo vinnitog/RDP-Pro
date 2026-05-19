@@ -35,6 +35,7 @@ const therapistHtml = read("psicologo.html");
 const therapistAliasHtml = read("therapist.html");
 const appJs = read("js/app.js");
 const dbJs = read("js/db.js");
+const therapistJs = read("js/therapist.js");
 
 for (const [file, html] of [
   ["index.html", indexHtml],
@@ -70,6 +71,7 @@ assert.doesNotMatch(
 );
 
 assert.match(appJs, /function feelingIcon\(/, "history should render minimal icons for feelings");
+assert.match(appJs, /function formatFeelingText\(/, "history should avoid duplicated feeling labels");
 assert.match(appJs, /feeling-icon/, "feeling icons should use a dedicated style hook");
 assert.match(appJs, /iconLabel\("clock"/, "insights should include a minimal icon for time patterns");
 assert.match(appJs, /iconLabel\("heart"/, "insights should include a minimal icon for frequent feelings");
@@ -169,6 +171,12 @@ assert.match(
   /fetchAndMerge/,
   "js/db.js: Records must expose fetchAndMerge() to sync remote records into localStorage"
 );
+
+assert.match(dbJs, /generatePatientInvite/, "js/db.js: therapist should be able to regenerate invite tokens");
+assert.match(dbJs, /deletePatientInvite/, "js/db.js: therapist should be able to hard-delete unused invites");
+assert.match(therapistJs, /Gerar novo link/, "js/therapist.js: patient cards should generate a fresh invite link");
+assert.match(therapistJs, /Deletar convite/, "js/therapist.js: unused onboarding invites should expose delete action");
+assert.doesNotMatch(therapistJs, />Copiar link</, "js/therapist.js: patient cards should not show copy-link action");
 
 // bootApp must call fetchAndMerge so remote records are pulled on login
 assert.match(
