@@ -14,6 +14,7 @@ const patientHtml = read("paciente.html");
 const therapistHtml = read("psicologo.html");
 const therapistAliasHtml = read("therapist.html");
 const appJs = read("js/app.js");
+const dbJs = read("js/db.js");
 
 for (const [file, html] of [
   ["paciente.html", patientHtml],
@@ -89,6 +90,34 @@ assert.doesNotMatch(
   tabMatch[1],
   /padding:\s*0\s*4px/,
   "css/app.css: tab padding should be refined beyond 0 4px for mobile"
+);
+
+// patient header should not display the patient name next to the logout button
+assert.doesNotMatch(
+  patientHtml,
+  /id="patient-name-header"/,
+  "paciente.html: patient name div must be removed from the header"
+);
+
+// logout button should use the app's standard button styling
+assert.match(
+  appCss,
+  /\.logout-btn[\s\S]*?border:/,
+  "css/app.css: logout-btn should have a visible border (styled as proper button)"
+);
+
+// db.js must have a fetchAndMerge function to pull remote records into localStorage
+assert.match(
+  dbJs,
+  /fetchAndMerge/,
+  "js/db.js: Records must expose fetchAndMerge() to sync remote records into localStorage"
+);
+
+// bootApp must call fetchAndMerge so remote records are pulled on login
+assert.match(
+  appJs,
+  /fetchAndMerge/,
+  "js/app.js: bootApp must call fetchAndMerge() to load records from Supabase"
 );
 
 console.log("UI consistency tests passed");
