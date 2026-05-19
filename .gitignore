@@ -1,20 +1,21 @@
-# Supabase CLI
-.supabase/
+# Dependencies
+node_modules/
 
-# Variáveis de ambiente
+# Environment
 .env
 .env.local
 .env.*.local
 
-# Dependências
-node_modules/
+# Local Supabase CLI state
+.supabase/
+supabase/.temp/
 
-# Arquivos de sistema
-.DS_Store
-Thumbs.db
+# Local agent/worktree state
+.claude/
 
 # Logs
 *.log
 
-# Arquivo de Contexto
-context.md
+# OS files
+.DS_Store
+Thumbs.db
