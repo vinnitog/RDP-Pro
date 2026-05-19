@@ -314,38 +314,35 @@ header {
 .theme-btn:active { background: rgba(255,255,255,0.12); }
 
 .header-right {
-  width: 58px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-}
-
-#patient-name-header {
-  text-align: right;
-  font-size: 0.75rem;
-  color: #b8cba0;
-  padding-right: 4px;
-  line-height: 1.3;
-  max-width: 58px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  align-items: center;
 }
 
 .logout-btn {
-  border: none;
-  background: transparent;
-  color: #dbe8c9;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,0.30);
+  background: rgba(255,255,255,0.10);
+  color: #e8edda;
   font-family: var(--font-app);
-  font-size: 0.68rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 6px;
+  padding: 0 12px;
+  min-height: 34px;
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
 }
 
 .logout-btn:hover {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.20);
+  border-color: rgba(255,255,255,0.50);
+}
+
+.logout-btn:active {
+  transform: scale(0.97);
 }
 
 /* ─── TABS ───────────────────────────────────────────────────────────────── */

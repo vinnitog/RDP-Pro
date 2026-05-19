@@ -227,6 +227,51 @@ const DB = (() => {
     clearAll() {
       Records.save([]);
     },
+
+    async fetchAndMerge() {
+      const session = Patient.get();
+      if (!session) return;
+
+      const { data, error } = await client()
+        .from("records")
+        .select("*")
+        .eq("patient_id", session.patient_id)
+        .order("created_at", { ascending: false });
+
+      if (error || !data?.length) return;
+
+      const local   = Records.getAll();
+      const localIds = new Set(local.map((r) => r.id));
+
+      const incoming = data
+        .filter((r) => !localIds.has(r.id))
+        .map((r) => ({
+          id:         r.id,
+          datetime:   r.datetime,
+          date_key:   r.date_key,
+          situation:  r.situation,
+          thought:    r.thought,
+          feeling:    r.feeling,
+          anxiety1:   r.anxiety1,
+          reaction:   r.reaction,
+          altThought: r.alt_thought,
+          alt_thought:r.alt_thought,
+          anxiety2:   r.anxiety2,
+          synced:     true,
+        }));
+
+      if (!incoming.length) return;
+
+      const parseDate = (r) => {
+        const [date, time] = (r.datetime || "").split(", ");
+        if (!date) return 0;
+        const [d, m, y] = date.split("/");
+        return new Date(`${y}-${m}-${d}T${time || "00:00"}`).getTime();
+      };
+
+      const merged = [...local, ...incoming].sort((a, b) => parseDate(b) - parseDate(a));
+      Records.save(merged);
+    },
   };
 
   // ─── AUTH DO PSICÓLOGO ──────────────────────────────────────────────────────

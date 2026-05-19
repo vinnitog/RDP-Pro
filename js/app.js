@@ -70,8 +70,14 @@ const App = (() => {
     renderAll();
     setNow();
 
-    // Tenta sincronizar pendentes silenciosamente
-    DB.Records.syncPending().catch(() => {});
+    // Sincroniza: envia pendentes e puxa registros remotos (outros dispositivos/sessões)
+    DB.Records.syncPending()
+      .then(() => DB.Records.fetchAndMerge())
+      .then(() => {
+        state.records = DB.Records.getAll();
+        renderHistory();
+      })
+      .catch(() => {});
   }
 
   // ─── TELAS ────────────────────────────────────────────────────────────────
