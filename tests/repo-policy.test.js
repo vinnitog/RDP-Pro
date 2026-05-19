@@ -19,6 +19,7 @@ function assertOrdered(content, labels, file) {
 
 const agents = read("AGENTS.md");
 const context = read("context.md");
+const gitignore = read(".gitignore");
 const testCmd = read("test.cmd");
 
 for (const [file, content] of [
@@ -40,5 +41,10 @@ for (const [file, content] of [
 
 assert.match(testCmd, /cd \/d "%~dp0"/, "test.cmd should run from its own directory");
 assert.doesNotMatch(testCmd, /npm test/, "test.cmd should not call npm test");
+
+for (const pattern of ["node_modules/", ".env", ".supabase/", "supabase/.temp/", ".claude/", "*.log", ".DS_Store", "Thumbs.db"]) {
+  assert.match(gitignore, new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `.gitignore should include ${pattern}`);
+}
+assert.doesNotMatch(gitignore, /^context\.md$/m, ".gitignore should not ignore tracked project context");
 
 console.log("Repo policy tests passed");
