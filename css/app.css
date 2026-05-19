@@ -670,7 +670,20 @@ header {
 .history-item.open .history-chevron { transform: rotate(180deg); }
 
 .history-situation { font-size: 1.05rem; font-weight: 500; color: var(--text); line-height: 1.48; }
-.history-feeling   { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
+.history-feeling {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.feeling-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent);
+  opacity: 0.9;
+}
 .history-anx {
   display: inline-block;
   margin-top: 5px;
@@ -828,11 +841,26 @@ header {
   margin-bottom: 10px;
   box-shadow: var(--shadow-sm);
 }
-.insight-section-title { font-size: 0.84rem; font-weight: 600; color: var(--accent); margin-bottom: 10px; }
+.insight-section-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
 .insight-section-body  { font-size: 0.93rem; color: var(--text-muted); line-height: 1.6; }
 
 .feeling-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.feeling-label   { font-size: 0.86rem; color: var(--text); min-width: 84px; text-transform: capitalize; }
+.feeling-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--text);
+  min-width: 104px;
+  text-transform: capitalize;
+}
 .feeling-bar-wrap { flex: 1; height: 7px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
 .feeling-bar {
   height: 100%;

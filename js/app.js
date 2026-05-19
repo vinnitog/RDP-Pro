@@ -553,21 +553,44 @@ const App = (() => {
   }
 
   // ─── HISTÓRICO ────────────────────────────────────────────────────────────
-  function feelingEmoji(feeling) {
-    if (!feeling) return "";
+  function uiIcon(name, className = "ui-icon") {
+    const paths = {
+      alert: '<path d="M10.3 3.7 2.5 17.2A2 2 0 0 0 4.2 20h15.6a2 2 0 0 0 1.7-2.8L13.7 3.7a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+      bolt: '<path d="m13 2-9 13h8l-1 7 9-13h-8Z"/>',
+      cloud: '<path d="M17.5 19H7a5 5 0 1 1 1.2-9.85A7 7 0 0 1 21 12.8 3.7 3.7 0 0 1 17.5 19Z"/><path d="M8 22v-2"/><path d="M12 22v-2"/><path d="M16 22v-2"/>',
+      eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+      help: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.1 2.1c-.9.7-1.7 1.2-1.7 2.4"/><path d="M12 17h.01"/>',
+      heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/>',
+      leaf: '<path d="M12 22V12"/><path d="M12 12C7 12 4 9 4 4c5 0 8 3 8 8Z"/><path d="M12 14c5 0 8-3 8-8-5 0-8 3-8 8Z"/>',
+      moon: '<path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a7 7 0 1 0 11 11Z"/>',
+      pulse: '<path d="M3 12h4l2-6 4 12 2-6h6"/>',
+      scale: '<path d="m16 16 3-8 3 8c-.9.7-1.9 1-3 1s-2.1-.3-3-1Z"/><path d="m2 16 3-8 3 8c-.9.7-1.9 1-3 1s-2.1-.3-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 8h18"/>',
+      trend: '<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+      clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+      x: '<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+    };
+    return `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.heart}</svg>`;
+  }
+
+  function iconLabel(icon, label) {
+    return `<span class="icon-label">${uiIcon(icon)} ${label}</span>`;
+  }
+
+  function feelingIcon(feeling) {
+    if (!feeling) return { icon: uiIcon("heart", "ui-icon feeling-icon"), label: "" };
     const f = feeling.toLowerCase();
-    if (/raiva|irrita|bravo|fúria|revolta|ódio/.test(f)) return "Raiva:";
-    if (/ansied|nervos|preocup|aperto|tenso|tensão|pavor/.test(f)) return "Ansiedade:";
-    if (/medo|terror|assust|pânico|horror/.test(f)) return "Medo:";
-    if (/triste|tristeza|choro|vazio|solidão|sozinho/.test(f)) return "Tristeza:";
-    if (/vergonha|humilha|constrang|envergonha/.test(f)) return "Vergonha:";
-    if (/culpa|culpado|remorso/.test(f)) return "Culpa:";
-    if (/frustrad|decep/.test(f)) return "Frustração:";
-    if (/confus|perdido|desorient/.test(f)) return "Confusão:";
-    if (/cansaço|cansado|esgota|exaust/.test(f)) return "Cansaço:";
-    if (/feliz|alegri|contente|bem|animad/.test(f)) return "Bem-estar:";
-    if (/calmo|tranquil|paz|sereno/.test(f)) return "Calma:";
-    return "";
+    if (/raiva|irrita|bravo|fúria|revolta|ódio/.test(f)) return { icon: uiIcon("bolt", "ui-icon feeling-icon"), label: "Raiva:" };
+    if (/ansied|nervos|preocup|aperto|tenso|tensão|pavor/.test(f)) return { icon: uiIcon("pulse", "ui-icon feeling-icon"), label: "Ansiedade:" };
+    if (/medo|terror|assust|pânico|horror/.test(f)) return { icon: uiIcon("alert", "ui-icon feeling-icon"), label: "Medo:" };
+    if (/triste|tristeza|choro|vazio|solidão|sozinho/.test(f)) return { icon: uiIcon("cloud", "ui-icon feeling-icon"), label: "Tristeza:" };
+    if (/vergonha|humilha|constrang|envergonha/.test(f)) return { icon: uiIcon("eye", "ui-icon feeling-icon"), label: "Vergonha:" };
+    if (/culpa|culpado|remorso/.test(f)) return { icon: uiIcon("scale", "ui-icon feeling-icon"), label: "Culpa:" };
+    if (/frustrad|decep/.test(f)) return { icon: uiIcon("x", "ui-icon feeling-icon"), label: "Frustração:" };
+    if (/confus|perdido|desorient/.test(f)) return { icon: uiIcon("help", "ui-icon feeling-icon"), label: "Confusão:" };
+    if (/cansaço|cansado|esgota|exaust/.test(f)) return { icon: uiIcon("moon", "ui-icon feeling-icon"), label: "Cansaço:" };
+    if (/feliz|alegri|contente|bem|animad/.test(f)) return { icon: uiIcon("heart", "ui-icon feeling-icon"), label: "Bem-estar:" };
+    if (/calmo|tranquil|paz|sereno/.test(f)) return { icon: uiIcon("leaf", "ui-icon feeling-icon"), label: "Calma:" };
+    return { icon: uiIcon("heart", "ui-icon feeling-icon"), label: "" };
   }
 
   let _chart = null;
@@ -650,6 +673,7 @@ const App = (() => {
       html += `<div class="days-counter"><span>${dias}</span> dia${dias !== 1 ? "s" : ""} de ${state.maxDays}</div>`;
       html += records.map((r) => {
         const safe = (s) => (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        const feeling = feelingIcon(r.feeling);
         const syncDot = r.synced
           ? '<span title="Sincronizado" style="color:#6b7c4a;font-size:10px">●</span>'
           : '<span title="Pendente de sincronização" style="color:#f0ad4e;font-size:10px">●</span>';
@@ -660,7 +684,7 @@ const App = (() => {
               <span class="history-chevron">▾</span>
             </div>
             <div class="history-situation">${safe(r.situation || "(sem situação)")}</div>
-            <div class="history-feeling">${feelingEmoji(r.feeling)} ${safe(r.feeling || "–")}</div>
+            <div class="history-feeling">${feeling.icon}<span>${feeling.label ? `${feeling.label} ` : ""}${safe(r.feeling || "–")}</span></div>
             <div class="history-anx">Ansiedade: ${r.anxiety1}/10 → ${r.anxiety2}/10</div>
           </div>
           <div class="history-detail">
@@ -743,16 +767,16 @@ const App = (() => {
       </div>
 
       <div class="insight-section">
-        <div class="insight-section-title">Quando você mais registra</div>
+        <div class="insight-section-title">${iconLabel("clock", "Quando você mais registra")}</div>
         <div class="insight-section-body">Seus registros se concentram no período da <strong>${peakPeriod}</strong> (pico às ${peakHour}h).</div>
       </div>
 
       ${topFeelings.length ? `
       <div class="insight-section">
-        <div class="insight-section-title">Sentimentos mais frequentes</div>
+        <div class="insight-section-title">${iconLabel("heart", "Sentimentos mais frequentes")}</div>
         ${topFeelings.map(([feeling, count]) => `
           <div class="feeling-bar-row">
-            <span class="feeling-label">${feeling}</span>
+            <span class="feeling-label">${feelingIcon(feeling).icon}${feeling}</span>
             <div class="feeling-bar-wrap">
               <div class="feeling-bar" style="width:${Math.round((count / records.length) * 100)}%"></div>
             </div>
@@ -761,7 +785,7 @@ const App = (() => {
       </div>` : ""}
 
       <div class="insight-section">
-        <div class="insight-section-title">Tendência do ciclo</div>
+        <div class="insight-section-title">${iconLabel("trend", "Tendência do ciclo")}</div>
         <div class="insight-section-body">${
           avgDelta < -1
             ? "Ótimo progresso! Sua ansiedade reduziu consistentemente após as reflexões."

@@ -13,6 +13,7 @@ const therapistCss = read("css/therapist.css");
 const patientHtml = read("paciente.html");
 const therapistHtml = read("psicologo.html");
 const therapistAliasHtml = read("therapist.html");
+const appJs = read("js/app.js");
 
 for (const [file, html] of [
   ["paciente.html", patientHtml],
@@ -41,10 +42,17 @@ for (const [file, css] of [
 }
 
 assert.doesNotMatch(
-  patientHtml + therapistHtml + therapistAliasHtml,
+  patientHtml + therapistHtml + therapistAliasHtml + appJs,
   /[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u,
-  "HTML should not use colorful emoji icons"
+  "UI source should not use colorful emoji icons"
 );
+
+assert.match(appJs, /function feelingIcon\(/, "history should render minimal icons for feelings");
+assert.match(appJs, /feeling-icon/, "feeling icons should use a dedicated style hook");
+assert.match(appJs, /iconLabel\("clock"/, "insights should include a minimal icon for time patterns");
+assert.match(appJs, /iconLabel\("heart"/, "insights should include a minimal icon for frequent feelings");
+assert.match(appJs, /iconLabel\("trend"/, "insights should include a minimal icon for cycle trends");
+assert.match(appCss, /\.feeling-icon/, "patient CSS should style feeling icons");
 
 for (const html of [therapistHtml, therapistAliasHtml]) {
   assert.match(html, /class="t-btn t-btn-header t-btn-header-settings"/, "settings button should use polished header style");
