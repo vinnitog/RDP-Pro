@@ -112,22 +112,25 @@ Branch base de trabalho: `develop`.
 Sempre que houver criacao ou alteracao de arquivos neste projeto, inclusive em chats futuros, seguir obrigatoriamente:
 
 1. `senior-dev`: implementa qualquer ajuste, melhoria, bugfix, ideia nova ou funcionalidade.
-2. `code-reviewer`: revisa minuciosamente as alteracoes, aponta riscos e corrige o que for necessario.
-3. `qa-senior`: faz analise de impacto e define casos de teste, incluindo regressivos quando algo existente foi alterado.
-4. `qa-automate`: cria ou ajusta testes automatizados definidos pelo `qa-senior`.
-5. Validar testes automatizados e revisar diff.
-6. `git status`
-7. Fazer staging apenas dos arquivos revisados e pertencentes ao escopo com `git add -- <arquivos>`.
-8. Rodar `git diff --cached`.
-9. `git commit`
-10. `git push origin develop`
-11. Abrir PR `develop -> main` para aprovacao, ou atualizar/comentar o PR existente se ele ja existir.
+2. `ui-ux-expert`: quando a mudanca tocar front-end com impacto visual/UX, entra logo apos o `senior-dev` e antes do `code-reviewer`; neste projeto isso vale mesmo sem `/ui-ux`. Usar sempre que a mudanca tocar HTML, CSS, layout, componentes, responsividade, acessibilidade visual, microinteracoes ou experiencia do usuario. Se a mudanca de front-end for puramente logica e sem impacto visual/UX, registrar explicitamente que a etapa nao se aplica.
+3. `code-reviewer`: entra apos `ui-ux-expert` quando aplicavel; caso contrario, entra logo apos `senior-dev`. Revisa minuciosamente as alteracoes, aponta riscos e corrige o que for necessario.
+4. `qa-senior`: faz analise de impacto e define casos de teste, incluindo regressivos quando algo existente foi alterado.
+5. `qa-automate`: cria ou ajusta testes automatizados definidos pelo `qa-senior`.
+6. Validar testes automatizados e revisar diff.
+7. `git status`
+8. Fazer staging apenas dos arquivos revisados e pertencentes ao escopo com `git add -- <arquivos>`.
+9. Rodar `git diff --cached`.
+10. `git commit`
+11. `git push origin develop`
+12. Abrir PR `develop -> main` para aprovacao, ou atualizar/comentar o PR existente se ele ja existir.
 
 Se algum desses passos falhar por permissao, credencial, conflito ou ambiente, informar o bloqueio claramente.
 
 Nunca fazer push direto para `main`.
 
 Se algum agent formal nao estiver disponivel na sessao, executar a etapa como papel explicito no proprio Codex e registrar no resumo final. Quando houver ferramenta de subagents disponivel, usar subagents com esses papeis no prompt.
+
+Para novos projetos, copiar o kit de governanca (`AGENTS.md`, `test.cmd`, teste de politica do repo e `.gitignore` categorizado), ajustar workspace/stack/comandos, remover regras especificas do projeto anterior, criar contexto publico versionavel quando o contexto principal for sensivel, criar ou usar `develop`, e validar tudo antes do primeiro commit.
 
 ## Testes e Browser
 
