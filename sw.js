@@ -3,7 +3,7 @@
 // cache-first para assets estáticos (ícones, manifest).
 // Incrementar CACHE_NAME a cada deploy.
 
-const CACHE_NAME = 'rdp-pro-v1.13';
+const CACHE_NAME = 'rdp-pro-v1.14';
 
 const STATIC_ASSETS = [
   './manifest.json',
