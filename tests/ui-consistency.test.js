@@ -99,11 +99,11 @@ assert.doesNotMatch(
   "paciente.html: patient name div must be removed from the header"
 );
 
-// logout button should use the app's standard button styling
+// logout button must match the therapist header button style (white bg, dark text)
 assert.match(
   appCss,
-  /\.logout-btn[\s\S]*?border:/,
-  "css/app.css: logout-btn should have a visible border (styled as proper button)"
+  /\.logout-btn[\s\S]*?background:\s*rgba\(255,255,255,0\.9/,
+  "css/app.css: logout-btn should use white semi-opaque background matching t-btn-header"
 );
 
 // db.js must have a fetchAndMerge function to pull remote records into localStorage
