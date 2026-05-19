@@ -63,4 +63,29 @@ for (const html of [therapistHtml, therapistAliasHtml]) {
 assert.match(therapistCss, /\.t-btn-header/, "therapist header buttons should have dedicated styling");
 assert.match(therapistCss, /\[data-theme="dark"\][\s\S]*\.t-btn-header/, "dark theme should style therapist header buttons");
 
+// settings button must start hidden — only visible after login
+for (const [file, html] of [["psicologo.html", therapistHtml], ["therapist.html", therapistAliasHtml]]) {
+  assert.match(
+    html,
+    /t-btn-header-settings[^>]* hidden/,
+    `${file}: settings button should start hidden (only visible after auth)`
+  );
+}
+
+// tab bar must have safe-area-aware side padding for notched phones
+assert.match(
+  appCss,
+  /\.tabs[\s\S]*?padding.*safe-area-inset/,
+  "tabs container should handle safe-area insets for modern phones"
+);
+
+// individual tabs should have at least 8px horizontal padding (mobile refinement)
+const tabMatch = appCss.match(/\.tab\s*\{([^}]+)\}/);
+assert.ok(tabMatch, "css/app.css: .tab rule should exist");
+assert.doesNotMatch(
+  tabMatch[1],
+  /padding:\s*0\s*4px/,
+  "css/app.css: tab padding should be refined beyond 0 4px for mobile"
+);
+
 console.log("UI consistency tests passed");

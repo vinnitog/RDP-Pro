@@ -56,6 +56,8 @@ const Therapist = (() => {
   function showView(id) {
     document.querySelectorAll(".t-view").forEach((v) => v.classList.remove("active"));
     document.getElementById(id)?.classList.add("active");
+    const settingsBtn = document.querySelector(".t-btn-header-settings");
+    if (settingsBtn) settingsBtn.hidden = (id === "view-autenticacao");
   }
 
   // ─── AUTH ─────────────────────────────────────────────────────────────────

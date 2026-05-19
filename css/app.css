@@ -349,12 +349,18 @@ header {
 }
 
 /* ─── TABS ───────────────────────────────────────────────────────────────── */
-.tabs { display: flex; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.tabs {
+  display: flex;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
 
 .tab {
   flex: 1;
   min-height: 46px;
-  padding: 0 4px;
+  padding: 0 8px;
   display: flex;
   align-items: center;
   justify-content: center;
