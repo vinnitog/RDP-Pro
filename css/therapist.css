@@ -59,6 +59,9 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* garante que [hidden] nao seja sobrescrito por regras de display do framework */
+[hidden] { display: none !important; }
+
 body {
   font-family: var(--font-app);
   font-size: 16px;

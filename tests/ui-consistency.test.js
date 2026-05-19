@@ -63,6 +63,9 @@ for (const html of [therapistHtml, therapistAliasHtml]) {
 assert.match(therapistCss, /\.t-btn-header/, "therapist header buttons should have dedicated styling");
 assert.match(therapistCss, /\[data-theme="dark"\][\s\S]*\.t-btn-header/, "dark theme should style therapist header buttons");
 
+// [hidden] must be enforced with !important so .t-btn display:inline-flex does not override it
+assert.match(therapistCss, /\[hidden\]\s*\{[^}]*display:\s*none\s*!important/, "therapist.css must enforce [hidden] display:none !important");
+
 // settings button must start hidden — only visible after login
 for (const [file, html] of [["psicologo.html", therapistHtml], ["therapist.html", therapistAliasHtml]]) {
   assert.match(
