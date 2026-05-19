@@ -321,28 +321,40 @@ header {
 .logout-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  border: 1px solid rgba(255,255,255,0.30);
-  background: rgba(255,255,255,0.10);
-  color: #e8edda;
+  gap: 7px;
+  border: 1px solid rgba(255,255,255,0.84);
+  background: rgba(255,255,255,0.90);
+  color: #151711;
   font-family: var(--font-app);
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 0 12px;
-  min-height: 34px;
+  padding: 0 15px;
+  min-height: 38px;
   border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(16,18,12,0.14);
   transition: background 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 
 .logout-btn:hover {
-  background: rgba(255,255,255,0.20);
-  border-color: rgba(255,255,255,0.50);
+  background: #ffffff;
 }
 
 .logout-btn:active {
-  transform: scale(0.97);
+  transform: translateY(1px);
+}
+
+[data-theme="dark"] .logout-btn {
+  background: rgba(245,247,239,0.92);
+  border-color: rgba(255,255,255,0.70);
+  color: #11140f;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.34);
+}
+
+[data-theme="dark"] .logout-btn:hover {
+  background: #ffffff;
+  color: #11140f;
 }
 
 /* ─── TABS ───────────────────────────────────────────────────────────────── */

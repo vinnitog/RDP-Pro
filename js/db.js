@@ -266,7 +266,8 @@ const DB = (() => {
         const [date, time] = (r.datetime || "").split(", ");
         if (!date) return 0;
         const [d, m, y] = date.split("/");
-        return new Date(`${y}-${m}-${d}T${time || "00:00"}`).getTime();
+        const ts = new Date(`${y}-${m}-${d}T${time || "00:00"}`).getTime();
+        return isNaN(ts) ? 0 : ts;
       };
 
       const merged = [...local, ...incoming].sort((a, b) => parseDate(b) - parseDate(a));
